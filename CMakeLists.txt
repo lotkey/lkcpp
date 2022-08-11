@@ -4,7 +4,7 @@ find_package(GTest REQUIRED)
 set(CMAKE_BUILD_TYPE Debug)
 
 add_library(lkcpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/tmp.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/string.cpp
 )
 
 add_executable(test
