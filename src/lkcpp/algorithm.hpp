@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// Standard definitions
-/// Modeled after <cstddef>
+/// Common algorithms
+/// Modeled after <algorithm>
 ///
 /// Written by Lotkey
 /// https://www.github.com/lotkey
@@ -8,7 +8,4 @@
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-namespace lkcpp {
-using size_t = unsigned long;
-using nullptr_t = decltype(nullptr);
-} // namespace lkcpp
+#include "lkcpp/algorithm/equal.hpp"

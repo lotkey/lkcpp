@@ -1,9 +1,9 @@
 #pragma once
 
+#include "lkcpp/algorithm.hpp"
 #include "lkcpp/except.hpp"
-#include "lkcpp/unique_ptr.hpp"
-
-#include <cstring>
+#include "lkcpp/memory.hpp"
+#include "lkcpp/utility.hpp"
 
 namespace lkcpp {
 template<class T>
@@ -65,16 +65,17 @@ dynamic_array<T>::dynamic_array(T const* data, size_t size)
 {
   auto ptr = make_unique_array<T>(size);
   T* data_copy = ptr.release();
-  std::memcpy(data_copy, data, sizeof(T) * size);
+  lkcpp::memcpy(data_copy, data, size);
   m_data.reset(data_copy, size);
 }
 
 template<class T>
 dynamic_array<T>::dynamic_array(dynamic_array<T> const& arr)
 {
+  if (!arr.m_data) { return; }
   auto ptr = make_unique_array<T>(arr.size());
   T* data = ptr.release();
-  std::memcpy(data, arr.data(), sizeof(T) * arr.size());
+  lkcpp::memcpy(data, arr.data(), sizeof(T) * arr.size());
   m_data.reset(data, arr.size());
 }
 
@@ -82,7 +83,7 @@ template<class T>
 dynamic_array<T>& dynamic_array<T>::operator=(dynamic_array<T> const& arr)
 {
   T* data = make_unique_array<T>(arr.size());
-  std::memcpy(data, arr.data(), sizeof(T) * arr.size());
+  lkcpp::memcpy(data, arr.data(), sizeof(T) * arr.size());
   m_data.reset(data, arr.size());
 }
 
@@ -90,10 +91,9 @@ template<class T>
 bool dynamic_array<T>::operator==(dynamic_array<T> const& other) const
 {
   if (size() != other.size()) { return false; }
-  for (size_t i = 0; i < size(); i++) {
-    if (at(i) != other[i]) { return false; }
-  }
-  return true;
+  if (size() == 0) { return true; }
+  return lkcpp::equal(
+    m_data.get(), m_data.get() + m_data.size(), other.m_data.get());
 }
 
 template<class T>
@@ -147,7 +147,8 @@ void dynamic_array<T>::resize(size_t size)
 {
   auto p = make_unique_array<T>(size);
   T* data = p.release();
-  memcpy(data, m_data.get(), (size > m_data.size()) ? m_data.size() : size);
+  lkcpp::memcpy(
+    data, m_data.get(), (size > m_data.size()) ? m_data.size() : size);
   m_data.reset(data, size);
 }
 
@@ -174,6 +175,6 @@ void dynamic_array<T>::fill(T const& value)
 template<class T>
 void dynamic_array<T>::swap(dynamic_array<T>& arr)
 {
-  arr.m_data.swap(this->m_data);
+  lkcpp::swap(arr.m_data, m_data);
 }
 } // namespace lkcpp

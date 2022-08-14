@@ -1,6 +1,10 @@
 #pragma once
 
-#include "lkcpp/dynamic_array.hpp"
+#include "lkcpp/except.hpp"
+#include "lkcpp/object.hpp"
+#include "lkcpp/pod.hpp"
+#include "lkcpp/pod_view.hpp"
+#include "lkcpp/utility.hpp"
 
 namespace lkcpp {
 template<class T>
@@ -28,13 +32,13 @@ public:
   bool empty() const { return m_size == 0; }
   size_t size() const { return m_size; }
 
-  void clear() const;
-  void insert(size_t index, T const& t);
-  void emplace(size_t index, T&& t);
+  void clear();
+  template<class... Args>
+  void insert(size_t index, Args&&... args);
   void erase(size_t index);
   void erase(size_t start, size_t last);
-  void push_back(T const& t);
-  void emplace_back(T&& t);
+  template<class... Args>
+  void push_back(Args&&... args);
   void pop_back();
   void swap(vector<T>& v);
 
@@ -45,21 +49,35 @@ public:
   bool operator>=(vector<T> const& v) const;
   bool operator<=(vector<T> const& v) const;
 
+  friend std::ostream& operator<<(std::ostream& os, vector<T> const& v)
+  {
+    os << "{";
+    for (size_t i = 0; i < v.size(); i++) {
+      os << v[i];
+      if (i != v.size() - 1) { os << ", "; }
+    }
+    return (os << "}");
+  }
+
 private:
   static constexpr size_t s_first_size = 10;
 
-  dynamic_array<T> m_data;
+  pod m_data;
   size_t m_size = 0;
 
   void alloc_more_if_needed(size_t room_needed = 1);
   void shrink_if_needed();
+  void shift_right(size_t index_start, size_t num_shifts);
+  void shift_left(size_t index_start, size_t num_shifts);
 };
 
 template<class T>
 vector<T>::vector(T const* data, size_t initial_size) :
-    m_data(data, initial_size)
+    m_data(data, initial_size * sizeof(T) * 2)
 {
-  m_data.resize(initial_size * 2);
+  for (size_t i = 0; i < initial_size; i++) {
+    construct(m_data.array<T>() + i);
+  }
   m_size = initial_size;
 }
 
@@ -67,45 +85,37 @@ template<class T>
 T& vector<T>::at(size_t index)
 {
   if (index >= m_size) { throw out_of_bounds_exception(index, 0, m_size - 1); }
-  return m_data.at(index);
+  return m_data.array<T>()[index];
 }
 
 template<class T>
 T const& vector<T>::at(size_t index) const
 {
   if (index >= m_size) { throw out_of_bounds_exception(index, 0, m_size - 1); }
-  return m_data.at(index);
+  return m_data.array<T>()[index];
 }
 
 template<class T>
-void vector<T>::clear() const
+void vector<T>::clear()
 {
-  m_data.resize(0);
+  for (size_t i = 0; i < m_size; i++) { destruct(m_data.array<T>() + i); }
+  m_data.clear();
   m_size = 0;
 }
 
 template<class T>
-void vector<T>::insert(size_t index, T const& t)
+template<class... Args>
+void vector<T>::insert(size_t index, Args&&... args)
 {
-  alloc_more_if_needed();
-  for (size_t i = m_size; i > index; i++) { m_data[i] = m_data[i - 1]; }
-  m_data[index] = t;
-  m_size++;
-}
-
-template<class T>
-void vector<T>::emplace(size_t index, T&& t)
-{
-  alloc_more_if_needed();
-  for (size_t i = m_size; i > index; i++) { m_data[i] = m_data[i - 1]; }
-  m_data[index] = t;
+  shift_right(index, 1);
+  construct(m_data.array<T>() + index, args...);
   m_size++;
 }
 
 template<class T>
 void vector<T>::erase(size_t index)
 {
-  for (size_t i = index; i < m_size - 1; i++) { m_data[i] = m_data[i + 1]; }
+  shift_left(index, 1);
   m_size--;
   shrink_if_needed();
 }
@@ -113,47 +123,42 @@ void vector<T>::erase(size_t index)
 template<class T>
 void vector<T>::erase(size_t start, size_t last)
 {
-  for (size_t i = start; i < m_size - (last - start); i++) {
-    m_data[i] = m_data[i + (last - start)];
-  }
-  m_size -= (last - start);
+  shift_left(start, last - start);
+  m_size -= last - start;
   shrink_if_needed();
 }
 
 template<class T>
-void vector<T>::push_back(T const& t)
+template<class... Args>
+void vector<T>::push_back(Args&&... args)
 {
   alloc_more_if_needed();
-  m_data[m_size] = t;
-  m_size++;
-}
-
-template<class T>
-void vector<T>::emplace_back(T&& t)
-{
-  alloc_more_if_needed();
-  m_data[m_size] = t;
+  construct(m_data.array<T>() + m_size, args...);
   m_size++;
 }
 
 template<class T>
 void vector<T>::pop_back()
 {
-  if (m_size != 0) { m_size--; }
+  if (m_size != 0) {
+    destruct(m_data.array<T>() + m_size - 1);
+    m_size--;
+  }
 }
 
 template<class T>
 void vector<T>::swap(vector<T>& v)
 {
-  m_data.swap(v.m_data);
-  size_t tmp = m_size;
-  m_size = v.m_size;
-  v.m_size = tmp;
+  lkcpp::swap(m_data, v.m_data);
+  lkcpp::swap(m_size, v.m_size);
 }
 
 template<class T>
 void vector<T>::alloc_more_if_needed(size_t room_needed)
 {
+  if (m_data.size() - m_size > room_needed) { return; }
+
+  std::cerr << "allocating more" << std::endl;
   if (m_data.size() == 0) {
     m_data.resize(s_first_size + room_needed * 2);
   } else {
@@ -168,6 +173,40 @@ void vector<T>::alloc_more_if_needed(size_t room_needed)
 template<class T>
 void vector<T>::shrink_if_needed()
 {
-  if (m_size * 4 < m_data.size()) { m_data.resize(m_size * 2); }
+  if (m_size * 4 < m_data.size()) {
+    std::cerr << "shrinking" << std::endl;
+    m_data.resize(m_size * 2);
+  }
+}
+
+template<class T>
+void vector<T>::shift_right(size_t index_start, size_t num_shifts)
+{
+  std::cerr << "shifting right " << num_shifts << " times starting at index "
+            << index_start << std::endl;
+  std::cerr << "before: " << *this << std::endl;
+  alloc_more_if_needed();
+  pod_view pv(m_data, index_start);
+  pv >> num_shifts;
+  // std::memmove(m_data.bytes() + index_start + num_shifts,
+  //              m_data.bytes() + index_start,
+  //              num_shifts);
+  std::cerr << "after:  " << *this << std::endl;
+}
+
+template<class T>
+void vector<T>::shift_left(size_t index_start, size_t num_shifts)
+{
+  // destruct all the objects being removed
+  for (size_t i = 0; i < num_shifts; i++) {
+    destruct(m_data.array<T>() + index_start + i);
+  }
+
+  pod_view pv(m_data, index_start);
+  pv << num_shifts;
+
+  // std::memmove(m_data.bytes() + index_start,
+  //              m_data.bytes() + index_start + num_shifts,
+  //              num_shifts);
 }
 } // namespace lkcpp

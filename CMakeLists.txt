@@ -4,13 +4,20 @@ find_package(GTest REQUIRED)
 set(CMAKE_BUILD_TYPE Debug)
 
 add_library(lkcpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/string.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/except/out_of_bounds.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/memory/memcpy.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/memory/memfill.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/pod.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/pod_view.cpp
 )
 
 add_executable(test
     ${CMAKE_CURRENT_SOURCE_DIR}/test/test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/test_array.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/test_dynamic_array.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/test_memory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/test_pod.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/test_pod_view.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/test_unique_ptr.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/test_vector.cpp
 )

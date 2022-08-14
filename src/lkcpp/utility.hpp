@@ -1,9 +1,4 @@
 #pragma once
 
-namespace lkcpp {
-template<class T>
-T&& move(T&& t)
-{
-  return t;
-}
-} // namespace lkcpp
+#include "lkcpp/utility/move.hpp"
+#include "lkcpp/utility/swap.hpp"

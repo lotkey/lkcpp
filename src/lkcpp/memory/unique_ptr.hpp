@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lkcpp/def.hpp"
+#include "lkcpp/utility.hpp"
 
 #include <iostream>
 
@@ -12,7 +13,7 @@ public:
   unique_ptr(unique_ptr<T> const&) = delete;
   unique_ptr<T>& operator=(unique_ptr<T> const&) = delete;
 
-  unique_ptr(std::nullptr_t) {}
+  unique_ptr(lkcpp::nullptr_t) {}
   unique_ptr(T* ptr, size_t size = 1) : m_ptr(ptr), m_size(size) {}
   unique_ptr(unique_ptr<T>&& ptr);
   unique_ptr<T>& operator=(unique_ptr<T>&& ptr);
@@ -111,12 +112,8 @@ void unique_ptr<T>::reset(T* ptr, size_t size)
 template<class T>
 void unique_ptr<T>::swap(unique_ptr<T>& other)
 {
-  T* tmp_ptr = m_ptr;
-  size_t tmp_size = m_size;
-  m_ptr = other.m_ptr;
-  m_size = other.m_size;
-  other.m_ptr = tmp_ptr;
-  other.m_size = tmp_size;
+  lkcpp::swap(m_ptr, other.m_ptr);
+  lkcpp::swap(m_size, other.m_size);
 }
 
 template<class T>
