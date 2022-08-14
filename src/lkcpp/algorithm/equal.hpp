@@ -10,6 +10,7 @@
 namespace lkcpp {
 /// Compares a range of values
 /// Compares [begin1, end1) to [begin2, end1 - begin1 + begin2)
+/// Modeled after std::equal
 /// @param begin1 Start of the first range
 /// @param end1 End of the first range
 /// @param begin2 Start of the second range

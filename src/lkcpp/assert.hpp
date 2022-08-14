@@ -12,11 +12,20 @@
 #include <stdexcept>
 
 // Asserts that some condition is true
-#define ASSERT(condition)                                                      \
+#define ASSERT_TRUE(condition)                                                 \
   {                                                                            \
     if (!(condition)) {                                                        \
       std::cerr << "Assert failed: " << #condition << "." << std::endl;        \
       std::cerr << (condition) << " is actually not true." << std::endl;       \
+      throw std::runtime_error("Assert failed.");                              \
+    }                                                                          \
+  }
+// Asserts that some condition is false
+#define ASSERT_FALSE(condition)                                                \
+  {                                                                            \
+    if (condition) {                                                           \
+      std::cerr << "Assert failed: !" << #condition << "." << std::endl;       \
+      std::cerr << (condition) << " is actually not false." << std::endl;      \
       throw std::runtime_error("Assert failed.");                              \
     }                                                                          \
   }

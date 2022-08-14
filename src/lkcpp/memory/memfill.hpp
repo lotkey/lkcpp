@@ -14,6 +14,7 @@ void memfill(T* dest, T const& value, size_t count);
 void memfill(void* dest, char value, size_t count);
 
 /// Fills a range with some value
+/// Modeled after std::memfill
 /// @param dest Destination to start filling
 /// @param value Value to fill the range with
 /// @param count Length of range to fill

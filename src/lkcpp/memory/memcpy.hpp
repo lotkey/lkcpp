@@ -16,6 +16,7 @@ template<>
 void memcpy(char* dest, char const* source, size_t num_bytes);
 
 /// Copies memory from source to dest, even if they are overlapping
+/// Modeled after std::memcpy std::memmove
 /// @param dest Destination to copy memory to
 /// @param source Source to copy memory from. This will be overwritten if the
 /// regions overlap.
