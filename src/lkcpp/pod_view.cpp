@@ -57,7 +57,6 @@ pod_view& pod_view::operator-=(size_t offset)
 bool pod_view::operator==(pod_view const& other) const
 {
   if (size() != other.size()) { return false; }
-  if (size() == 0) { return true; }
   return lkcpp::equal(bytes(), bytes() + m_size, other.bytes());
 }
 

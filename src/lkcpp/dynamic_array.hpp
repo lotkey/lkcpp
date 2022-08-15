@@ -1,3 +1,8 @@
+////////////////////////////////////////////////////////////////////////////////
+/// Written by Lotkey
+/// https://www.github.com/lotkey
+/// https://www.synthchris.com/
+////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include "lkcpp/algorithm.hpp"
@@ -8,41 +13,83 @@
 #include <type_traits>
 
 namespace lkcpp {
+/// Dynamic, resizable array that is stored on the heap
 template<class T>
 class dynamic_array {
 public:
   dynamic_array() = default;
-  dynamic_array(size_t size);
-  dynamic_array(T const* data, size_t size);
-  dynamic_array(dynamic_array const& arr);
   dynamic_array(dynamic_array&& arr) = default;
-  dynamic_array& operator=(dynamic_array const& arr);
   dynamic_array& operator=(dynamic_array&& arr) = default;
   virtual ~dynamic_array() = default;
 
+  /// Allocates an array of the provided size
+  /// @param size Number of elements to allocate
+  dynamic_array(size_t size);
+  /// Copies some data into a dynamic array
+  /// @param data Source of data to copy from
+  /// @param size Number of elements to copy from data
+  dynamic_array(T const* data, size_t size);
+  /// Performs a deep copy of a dynamic_array
+  /// @param arr dynamic_array to deep copy
+  dynamic_array(dynamic_array const& arr);
+  /// Frees memory and performs a deep copy of a dynamic_array
+  /// @param arr dynamic_array to deep copy
+  dynamic_array& operator=(dynamic_array const& arr);
+
+  /// @returns True if the arrays contain equal elements and are the same size
   bool operator==(dynamic_array const& other) const;
+  /// @returns False if the arrays contain equal elements and are the same size
   bool operator!=(dynamic_array const& other) const;
+  /// @returns True if the first different element is greater than the
+  /// corresponding element in the other array OR true if all corresponding
+  /// elements are equal and the size is greater than the other array's size
   bool operator>(dynamic_array const& other) const;
+  /// @returns True if the first different element is less than the
+  /// corresponding element in the other array OR true if all corresponding
+  /// elements are equal and the size is less than the other array's size
   bool operator<(dynamic_array const& other) const;
+  /// @returns False if the first different element is less than the
+  /// corresponding element in the other array OR true if all corresponding
+  /// elements are equal and the size is greater than or equal to the other
+  /// array's size
   bool operator>=(dynamic_array const& other) const;
+  /// @returns False if the first different element is greater than the
+  /// corresponding element in the other array OR true if all corresponding
+  /// elements are equal and the size is less than or equal to the other array's
+  /// size
   bool operator<=(dynamic_array const& other) const;
 
+  /// @returns A reference to the element at the provided index
   T& at(size_t index);
+  /// @returns A const reference to the element at the provided index
   T const& at(size_t index) const;
+  /// @returns A reference to the element at the provided index
   T& operator[](size_t index) { return at(index); }
+  /// @returns A const reference to the element at the provided index
   T const& operator[](size_t index) const { return at(index); }
+  /// @returns A reference to the first element in the array
   T& front() { return at(0); }
+  /// @returns A const reference to the first element in the array
   T const& front() const { return at(0); }
+  /// @returns A reference to the last element in the array
   T& back() { return at(size() - 1); }
+  /// @returns A const reference to the last element in the array
   T const& back() const { return at(size() - 1); }
+  /// @returns A const pointer to the first element in the array
   T const* data() const { return m_data.get(); }
 
+  /// @returns The number of elements in the array
   size_t size() const { return m_data.size(); }
+  /// Resizes the array to the provided size, deallocating any objects that get
+  /// freed
   void resize(size_t size);
 
+  /// Fills the array with the provided value
   void fill(T const& value);
+  /// Swaps two dynamic arrays
   void swap(dynamic_array<T>& arr);
 
+  /// Outputs an array to a stream
   friend std::ostream& operator<<(std::ostream& os, dynamic_array<T> const& arr)
   {
     os << "{";
@@ -156,10 +203,8 @@ bool dynamic_array<T>::operator<=(dynamic_array<T> const& other) const
 template<class T>
 void dynamic_array<T>::resize(size_t size)
 {
-  T* data = lkcpp::alloc<T>(size);
-  lkcpp::memcpy(
-    data, m_data.get(), (size > m_data.size()) ? m_data.size() : size);
-  lkcpp::dealloc(m_data.release());
+  T* data = m_data.release();
+  data = lkcpp::realloc_objs(data, size);
   m_data.reset(data, size);
 }
 

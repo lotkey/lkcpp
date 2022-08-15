@@ -60,9 +60,8 @@ void pod::swap(pod& other)
 
 void pod::resize(size_t size)
 {
-  void* tmp_ptr = m_data;
   size_t tmp_size = m_size;
-  m_data = lkcpp::realloc<void>(tmp_ptr, size);
+  m_data = lkcpp::realloc<void>(m_data, size);
   m_size = size;
 
   if (size > tmp_size) {
