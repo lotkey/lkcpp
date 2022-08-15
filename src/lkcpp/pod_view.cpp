@@ -16,8 +16,6 @@ pod_view::pod_view(pod& p, size_t offset, size_t size) :
   ASSERT_GT(p.size(), offset + size);
 }
 
-pod_view::~pod_view() { m_pod = nullptr; }
-
 void pod_view::clear() { m_pod = nullptr; }
 
 void pod_view::swap(pod_view& other)
