@@ -4,7 +4,7 @@
 #include "lkcpp/utility.hpp"
 
 namespace lkcpp {
-pod::pod(size_t size) : m_data(malloc(size)), m_size(size)
+pod::pod(size_t size) : m_data(lkcpp::alloc<void>(size)), m_size(size)
 {
   lkcpp::memfill(m_data, '\0', size);
 }
@@ -25,7 +25,7 @@ pod::pod(pod&& other) : m_data(other.m_data), m_size(other.m_size)
 pod& pod::operator=(pod const& other)
 {
   clear();
-  m_data = malloc(other.m_size);
+  m_data = lkcpp::alloc<void>(other.m_size);
   m_size = other.m_size;
   lkcpp::memcpy(m_data, other.data(), other.size());
   return *this;
@@ -46,7 +46,7 @@ pod::~pod() { clear(); }
 void pod::clear()
 {
   if (m_data) {
-    free(m_data);
+    lkcpp::dealloc(m_data);
     m_data = nullptr;
     m_size = 0;
   }
@@ -62,7 +62,7 @@ void pod::resize(size_t size)
 {
   void* tmp_ptr = m_data;
   size_t tmp_size = m_size;
-  m_data = std::realloc(tmp_ptr, size);
+  m_data = lkcpp::realloc<void>(tmp_ptr, size);
   m_size = size;
 
   if (size > tmp_size) {
@@ -115,10 +115,10 @@ char pod::back() const { return at(size() - 1); }
 pod& pod::operator>>(size_t num_shifts)
 {
   if (size() == 0) { return *this; }
-  char* data = static_cast<char*>(std::malloc(m_size));
+  char* data = lkcpp::alloc<char>(m_size);
   lkcpp::memcpy(data + num_shifts, bytes(), m_size - num_shifts);
   lkcpp::memcpy(data, bytes() + (m_size - num_shifts), num_shifts);
-  free(m_data);
+  lkcpp::dealloc(m_data);
   m_data = data;
   return *this;
 }
@@ -126,10 +126,10 @@ pod& pod::operator>>(size_t num_shifts)
 pod& pod::operator<<(size_t num_shifts)
 {
   if (size() == 0) { return *this; }
-  char* data = static_cast<char*>(std::malloc(m_size));
+  char* data = lkcpp::alloc<char>(m_size);
   lkcpp::memcpy(data + (m_size - num_shifts), bytes(), num_shifts);
   lkcpp::memcpy(data, bytes() + num_shifts, m_size - num_shifts);
-  free(m_data);
+  lkcpp::dealloc(m_data);
   m_data = data;
   return *this;
 }

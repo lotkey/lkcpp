@@ -113,15 +113,15 @@ private:
 template<class T, class... Args>
 unique_ptr<T> make_unique(Args&&... args)
 {
-  T* ptr = new T(args...);
+  T* ptr = lkcpp::alloc_obj<T>(args...);
   return unique_ptr<T>(ptr);
 }
 
 /// Allocates an array on the heap and returns a unique_ptr to the array
-template<class T>
-unique_ptr<T> make_unique_array(size_t size)
+template<class T, class... Args>
+unique_ptr<T> make_unique_array(size_t size, Args&&... args)
 {
-  T* ptr = new T[size];
+  T* ptr = lkcpp::alloc_objs<T>(size, args...);
   return unique_ptr<T>(ptr, size);
 }
 
@@ -216,11 +216,7 @@ template<class T>
 void unique_ptr<T>::free_memory()
 {
   if (!m_ptr) { return; }
-  if (m_size == 1) {
-    delete m_ptr;
-  } else {
-    delete[] m_ptr;
-  }
+  lkcpp::dealloc_objs(m_ptr);
   m_ptr = nullptr;
   m_size = 0;
 }

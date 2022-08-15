@@ -5,6 +5,8 @@
 #include "lkcpp/memory.hpp"
 #include "lkcpp/utility.hpp"
 
+#include <type_traits>
+
 namespace lkcpp {
 template<class T>
 class dynamic_array {
@@ -58,32 +60,42 @@ private:
 template<class T>
 dynamic_array<T>::dynamic_array(size_t size) :
     m_data(make_unique_array<T>(size))
-{}
+{
+  static_assert(std::is_default_constructible_v<T>);
+}
 
 template<class T>
 dynamic_array<T>::dynamic_array(T const* data, size_t size)
 {
-  auto ptr = make_unique_array<T>(size);
-  T* data_copy = ptr.release();
-  lkcpp::memcpy(data_copy, data, size);
+  static_assert(std::is_default_constructible_v<T>);
+  static_assert(std::is_assignable_v<T>);
+
+  T* data_copy = lkcpp::alloc_objs<T>(size);
+  for (size_t i = 0; i < size; i++) { data_copy[i] = data[i]; }
   m_data.reset(data_copy, size);
 }
 
 template<class T>
 dynamic_array<T>::dynamic_array(dynamic_array<T> const& arr)
 {
+  static_assert(std::is_default_constructible_v<T>);
+  static_assert(std::is_copy_assignable_v<T>);
+
   if (!arr.m_data) { return; }
-  auto ptr = make_unique_array<T>(arr.size());
-  T* data = ptr.release();
-  lkcpp::memcpy(data, arr.data(), sizeof(T) * arr.size());
+  T* data = lkcpp::alloc_objs<T>(arr.size());
+  for (size_t i = 0; i < arr.size(); i++) { data[i] = arr.m_data[i]; }
   m_data.reset(data, arr.size());
 }
 
 template<class T>
 dynamic_array<T>& dynamic_array<T>::operator=(dynamic_array<T> const& arr)
 {
-  T* data = make_unique_array<T>(arr.size());
-  lkcpp::memcpy(data, arr.data(), sizeof(T) * arr.size());
+  static_assert(std::is_default_constructible_v<T>);
+  static_assert(std::is_copy_assignable_v<T>);
+
+  if (!arr.m_data) { return *this; }
+  T* data = lkcpp::alloc_objs<T>(arr.size());
+  for (size_t i = 0; i < arr.size(); i++) { data[i] = arr.m_data[i]; }
   m_data.reset(data, arr.size());
 }
 
@@ -91,7 +103,6 @@ template<class T>
 bool dynamic_array<T>::operator==(dynamic_array<T> const& other) const
 {
   if (size() != other.size()) { return false; }
-  if (size() == 0) { return true; }
   return lkcpp::equal(
     m_data.get(), m_data.get() + m_data.size(), other.m_data.get());
 }
@@ -145,10 +156,10 @@ bool dynamic_array<T>::operator<=(dynamic_array<T> const& other) const
 template<class T>
 void dynamic_array<T>::resize(size_t size)
 {
-  auto p = make_unique_array<T>(size);
-  T* data = p.release();
+  T* data = lkcpp::alloc<T>(size);
   lkcpp::memcpy(
     data, m_data.get(), (size > m_data.size()) ? m_data.size() : size);
+  lkcpp::dealloc(m_data.release());
   m_data.reset(data, size);
 }
 

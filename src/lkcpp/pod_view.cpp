@@ -117,22 +117,22 @@ char pod_view::back() const { return at(m_size - 1); }
 pod_view& pod_view::operator>>(int num_shifts)
 {
   if (size() == 0) { return *this; }
-  char* data = static_cast<char*>(std::malloc(size()));
+  char* data = lkcpp::alloc<char>(size());
   lkcpp::memcpy(data + num_shifts, bytes(), size() - num_shifts);
   lkcpp::memcpy(data, bytes() + (size() - num_shifts), num_shifts);
   lkcpp::memcpy(bytes(), data, size());
-  free(data);
+  lkcpp::dealloc(data);
   return *this;
 }
 
 pod_view& pod_view::operator<<(int num_shifts)
 {
   if (size() == 0) { return *this; }
-  char* data = static_cast<char*>(std::malloc(size()));
+  char* data = lkcpp::alloc<char>(size());
   lkcpp::memcpy(data + (size() - num_shifts), bytes(), num_shifts);
   lkcpp::memcpy(data, bytes() + num_shifts, size() - num_shifts);
   lkcpp::memcpy(bytes(), data, size());
-  free(data);
+  lkcpp::dealloc(data);
   return *this;
 }
 } // namespace lkcpp

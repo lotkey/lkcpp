@@ -3,7 +3,6 @@
 #include "lkcpp/def.hpp"
 #include "lkcpp/memory.hpp"
 
-#include <cstdlib> // std::malloc
 #include <iostream>
 
 namespace lkcpp {
@@ -64,7 +63,7 @@ private:
 
 template<class T>
 pod::pod(T const* buffer, size_t size) :
-    m_data(malloc(sizeof(T) * size)), m_size(size)
+    m_data(lkcpp::alloc<T>(size)), m_size(size)
 {
   lkcpp::memcpy(m_data, static_cast<void const*>(buffer), sizeof(T) * size);
 }

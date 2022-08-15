@@ -24,6 +24,7 @@ void memcpy(char* dest, char const* source, size_t num_bytes)
   //     |___dest___|
   else if (dest < source && dest + num_bytes > source) {
     // Copy from left to right
+    // This will overwrite the source
     for (size_t i = 0; i < num_bytes; i++) { dest[i] = source[i]; }
   }
   //   Case 3:
@@ -31,6 +32,8 @@ void memcpy(char* dest, char const* source, size_t num_bytes)
   //     |__source__|
   //        |___dest___|
   else if (source < dest && source + num_bytes > dest) {
+    // Copy from right to left
+    // This will overwrite the source
     for (size_t i = num_bytes; i > 0; i--) { dest[i - 1] = source[i - 1]; }
   }
   //   Case 4:
