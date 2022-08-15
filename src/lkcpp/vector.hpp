@@ -11,13 +11,14 @@ template<class T>
 class vector {
 public:
   vector() = default;
-  vector(size_t initial_size) : m_data(initial_size) {}
-  vector(T const* data, size_t size);
   vector(vector<T> const&) = default;
   vector(vector<T>&&) = default;
   vector<T>& operator=(vector<T> const&) = default;
   vector<T>& operator=(vector<T>&&) = default;
   virtual ~vector() = default;
+
+  vector(size_t initial_size) : m_data(initial_size) {}
+  vector(T const* data, size_t size);
 
   T& at(size_t index);
   T const& at(size_t index) const;
@@ -27,7 +28,7 @@ public:
   T const& front() const { return at(0); }
   T& back() { return at(m_size - 1); }
   T const& back() const { return at(m_size - 1); }
-  T const* data() const { return m_data.data(); }
+  T const* data() const { return m_data.array<T>(); }
 
   bool empty() const { return m_size == 0; }
   size_t size() const { return m_size; }
@@ -144,6 +145,7 @@ void vector<T>::pop_back()
     destruct(m_data.array<T>() + m_size - 1);
     m_size--;
   }
+  shrink_if_needed();
 }
 
 template<class T>
@@ -156,13 +158,12 @@ void vector<T>::swap(vector<T>& v)
 template<class T>
 void vector<T>::alloc_more_if_needed(size_t room_needed)
 {
-  if (m_data.size() - m_size > room_needed) { return; }
+  if (m_data.size_in<T>() - m_size > room_needed) { return; }
 
-  std::cerr << "allocating more" << std::endl;
-  if (m_data.size() == 0) {
-    m_data.resize(s_first_size + room_needed * 2);
+  if (m_data.size_in<T>() == 0) {
+    m_data.resize(sizeof(T) * (s_first_size + (room_needed * 2)));
   } else {
-    if (m_data.size() * 2 > room_needed) {
+    if (m_data.size_in<T>() * 2 > room_needed) {
       m_data.resize(m_data.size() * 2);
     } else {
       m_data.resize(m_data.size() + (2 * room_needed));
@@ -173,40 +174,24 @@ void vector<T>::alloc_more_if_needed(size_t room_needed)
 template<class T>
 void vector<T>::shrink_if_needed()
 {
-  if (m_size * 4 < m_data.size()) {
-    std::cerr << "shrinking" << std::endl;
-    m_data.resize(m_size * 2);
-  }
+  if (m_size * 4 < m_data.size()) { m_data.resize(m_size * sizeof(T) * 2); }
 }
 
 template<class T>
 void vector<T>::shift_right(size_t index_start, size_t num_shifts)
 {
-  std::cerr << "shifting right " << num_shifts << " times starting at index "
-            << index_start << std::endl;
-  std::cerr << "before: " << *this << std::endl;
   alloc_more_if_needed();
-  pod_view pv(m_data, index_start);
+  pod_view pv(m_data, index_start * sizeof(T));
   pv >> num_shifts;
-  // std::memmove(m_data.bytes() + index_start + num_shifts,
-  //              m_data.bytes() + index_start,
-  //              num_shifts);
-  std::cerr << "after:  " << *this << std::endl;
 }
 
 template<class T>
 void vector<T>::shift_left(size_t index_start, size_t num_shifts)
 {
-  // destruct all the objects being removed
   for (size_t i = 0; i < num_shifts; i++) {
     destruct(m_data.array<T>() + index_start + i);
   }
-
-  pod_view pv(m_data, index_start);
+  pod_view pv(m_data, index_start * sizeof(T));
   pv << num_shifts;
-
-  // std::memmove(m_data.bytes() + index_start,
-  //              m_data.bytes() + index_start + num_shifts,
-  //              num_shifts);
 }
 } // namespace lkcpp

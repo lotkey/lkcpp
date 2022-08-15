@@ -6,6 +6,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <string>
 
 namespace lkcpp {
 /// Exception for attempting to do something out of bounds

@@ -60,15 +60,20 @@ void pod::swap(pod& other)
 
 void pod::resize(size_t size)
 {
-  size_t tmp_size = m_size;
-  m_data = lkcpp::realloc<void>(m_data, size);
-  m_size = size;
+  if (m_size == 0) {
+    m_data = lkcpp::alloc<void>(size);
+    lkcpp::memfill(bytes(), '\0', size);
+  } else {
+    size_t tmp_size = m_size;
+    m_data = lkcpp::realloc(m_data, size);
 
-  if (size > tmp_size) {
-    size_t zero_start = tmp_size;
-    size_t zero_len = size - tmp_size;
-    lkcpp::memfill(static_cast<char*>(m_data) + zero_start, '\0', zero_len);
+    if (size > tmp_size) {
+      size_t zero_start = tmp_size;
+      size_t zero_len = size - tmp_size;
+      lkcpp::memfill(bytes() + zero_start, '\0', zero_len);
+    }
   }
+  m_size = size;
 }
 
 bool pod::operator==(pod const& other) const

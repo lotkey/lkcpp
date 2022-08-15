@@ -4,6 +4,7 @@ find_package(GTest REQUIRED)
 set(CMAKE_BUILD_TYPE Debug)
 
 add_library(lkcpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/except/failed_allocation.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/except/out_of_bounds.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/memory/alloc.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/memory/memcpy.cpp

@@ -7,9 +7,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "lkcpp/except/failed_allocation.hpp"
 #include "lkcpp/object.hpp"
 
 #include <cstdlib>
+#include <iostream>
 
 namespace lkcpp {
 template<class T>
@@ -36,6 +38,9 @@ T* alloc(size_t size)
 {
   size_t* p =
     static_cast<size_t*>(std::malloc(sizeof(size_t) + (sizeof(T) * size)));
+  if (p == nullptr) {
+    throw failed_allocation_exception((sizeof(T) * size) + size);
+  }
   *p = size;
   return static_cast<T*>(static_cast<void*>(p + 1));
 }
@@ -49,10 +54,8 @@ void* alloc(size_t size);
 template<class T>
 T* realloc(T* t, size_t size)
 {
-  size_t* p = static_cast<size_t*>(static_cast<void*>(t)) - 1;
-  size_t* new_data =
-    static_cast<size_t*>(std::realloc(p, sizeof(size_t) + (sizeof(T) * size)));
-  return static_cast<T*>(static_cast<void*>(new_data + 1));
+  return static_cast<T*>(
+    realloc<void>(static_cast<void*>(t), size * sizeof(T)));
 }
 
 template<>
