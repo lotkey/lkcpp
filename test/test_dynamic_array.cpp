@@ -20,8 +20,8 @@ TEST(test_dynamic_array, logical_operators)
   lkcpp::dynamic_array<int> x(3);
   lkcpp::dynamic_array<int> y(4);
 
-  for (size_t i = 0; i < x.size(); i++) { x[i] = i; }
-  for (size_t i = 0; i < y.size(); i++) { y[i] = i; }
+  for (lkcpp::size_t i = 0; i < x.size(); i++) { x[i] = i; }
+  for (lkcpp::size_t i = 0; i < y.size(); i++) { y[i] = i; }
 
   EXPECT_EQ(x, x);
   EXPECT_NE(x, y);
@@ -37,13 +37,13 @@ TEST(test_dynamic_array, fill)
 {
   lkcpp::dynamic_array<int> arr(4);
   arr.fill(0);
-  for (size_t i = 0; i < arr.size(); i++) { EXPECT_EQ(0, arr[i]); }
+  for (lkcpp::size_t i = 0; i < arr.size(); i++) { EXPECT_EQ(0, arr[i]); }
 }
 
 TEST(test_dynamic_array, setters)
 {
   lkcpp::dynamic_array<int> arr(5);
-  for (size_t i = 0; i < arr.size(); i++) {
+  for (lkcpp::size_t i = 0; i < arr.size(); i++) {
     arr[i] = i;
     EXPECT_EQ(i, arr[i]);
   }

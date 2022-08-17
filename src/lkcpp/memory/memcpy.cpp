@@ -2,14 +2,14 @@
 
 namespace lkcpp {
 template<>
-void memcpy(void* dest, void const* source, size_t num_bytes)
+void memcpy(void* dest, void const* source, lkcpp::size_t num_bytes)
 {
   lkcpp::memcpy(
     static_cast<char*>(dest), static_cast<char const*>(source), num_bytes);
 }
 
 template<>
-void memcpy(char* dest, char const* source, size_t num_bytes)
+void memcpy(char* dest, char const* source, lkcpp::size_t num_bytes)
 {
   //   Case 1:
   //     Regions are the same.
@@ -25,7 +25,7 @@ void memcpy(char* dest, char const* source, size_t num_bytes)
   else if (dest < source && dest + num_bytes > source) {
     // Copy from left to right
     // This will overwrite the source
-    for (size_t i = 0; i < num_bytes; i++) { dest[i] = source[i]; }
+    for (lkcpp::size_t i = 0; i < num_bytes; i++) { dest[i] = source[i]; }
   }
   //   Case 3:
   //     Regions overlap, and the source is first.
@@ -34,7 +34,9 @@ void memcpy(char* dest, char const* source, size_t num_bytes)
   else if (source < dest && source + num_bytes > dest) {
     // Copy from right to left
     // This will overwrite the source
-    for (size_t i = num_bytes; i > 0; i--) { dest[i - 1] = source[i - 1]; }
+    for (lkcpp::size_t i = num_bytes; i > 0; i--) {
+      dest[i - 1] = source[i - 1];
+    }
   }
   //   Case 4:
   //     Regions are not overlapping at all.
@@ -42,7 +44,7 @@ void memcpy(char* dest, char const* source, size_t num_bytes)
   //                      |___dest___|
   else {
     // Copy from left to right (order is arbitrary)
-    for (size_t i = 0; i < num_bytes; i++) { dest[i] = source[i]; }
+    for (lkcpp::size_t i = 0; i < num_bytes; i++) { dest[i] = source[i]; }
   }
 }
 } // namespace lkcpp

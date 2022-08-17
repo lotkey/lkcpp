@@ -11,4 +11,5 @@
 #include "memory/alloc.hpp"
 #include "memory/memcpy.hpp"
 #include "memory/memfill.hpp"
+#include "memory/memshift.hpp"
 #include "memory/unique_ptr.hpp"

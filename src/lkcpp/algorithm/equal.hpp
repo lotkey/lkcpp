@@ -17,7 +17,7 @@ namespace lkcpp {
 template<class T1, class T2>
 bool equal(T1 begin1, T1 end1, T2 begin2)
 {
-  for (size_t i = 0; i < (end1 - begin1); i++) {
+  for (lkcpp::size_t i = 0; i < (end1 - begin1); i++) {
     if (begin1[i] != begin2[i]) { return false; }
   }
   return true;

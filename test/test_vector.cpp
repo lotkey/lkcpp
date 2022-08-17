@@ -10,8 +10,9 @@ TEST(test_vector, default_initialize)
 
 TEST(test_vector, reserve_initialize)
 {
-  lkcpp::vector<int> w(5);
-  EXPECT_EQ(0, w.size());
+  lkcpp::vector<int> w(5, 2);
+  EXPECT_EQ(5, w.size());
+  for (lkcpp::size_t i = 0; i < w.size(); i++) { EXPECT_EQ(2, w[i]); }
 }
 
 TEST(test_vector, modify)
@@ -27,7 +28,7 @@ TEST(test_vector, modify)
   }
 
   while (!v.empty()) {
-    size_t size = v.size();
+    lkcpp::size_t size = v.size();
     v.pop_back();
     EXPECT_EQ(size - 1, v.size());
   }

@@ -18,7 +18,7 @@ TEST(test_unique_ptr, null_initialized)
 
 TEST(test_unique_ptr, single_initialized)
 {
-  lkcpp::unique_ptr<int> p = lkcpp::make_unique<int>(5);
+  lkcpp::unique_ptr<int> p = lkcpp::unique_ptr<int>::make(5);
   EXPECT_TRUE(p.get());
   EXPECT_EQ(5, *p);
   EXPECT_EQ(1, p.size());
@@ -26,14 +26,14 @@ TEST(test_unique_ptr, single_initialized)
 
 TEST(test_unique_ptr, array_initialized)
 {
-  lkcpp::unique_ptr<int> p = lkcpp::make_unique_array<int>(5);
+  lkcpp::unique_ptr<int> p = lkcpp::unique_ptr<int>::make_array(5);
   EXPECT_TRUE(p.get());
   EXPECT_EQ(5, p.size());
 }
 
 TEST(test_unique_ptr, destructor)
 {
-  lkcpp::unique_ptr<int> p = lkcpp::make_unique<int>(5);
+  lkcpp::unique_ptr<int> p = lkcpp::unique_ptr<int>::make(5);
   EXPECT_TRUE(p.get());
   EXPECT_EQ(1, p.size());
   p.~unique_ptr<int>();
@@ -60,7 +60,7 @@ TEST(test_unique_ptr, logical)
 
 TEST(test_unique_ptr, array_setter)
 {
-  lkcpp::unique_ptr<int> arr = lkcpp::make_unique_array<int>(5);
+  lkcpp::unique_ptr<int> arr = lkcpp::unique_ptr<int>::make_array(5);
   arr[4] = 3;
   EXPECT_EQ(3, arr[4]);
 }

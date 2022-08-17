@@ -17,6 +17,14 @@ namespace lkcpp {
 template<class T>
 class unique_ptr {
 public:
+  /// Allocates an object on the heap and returns a unique_ptr to the object
+  template<class... Args>
+  static unique_ptr<T> make(Args&&... args);
+
+  /// Allocates an array on the heap and returns a unique_ptr to the array
+  template<class... Args>
+  static unique_ptr<T> make_array(lkcpp::size_t size, Args&&... args);
+
   /// Points to nullptr
   unique_ptr() = default;
   /// Disable copying ownership
@@ -29,7 +37,7 @@ public:
   /// Takes ownership of a pointer
   /// @param ptr Pointer to take ownership of
   /// @param size Number of elements allocated
-  unique_ptr(T* ptr, size_t size = 1) : m_ptr(ptr), m_size(size) {}
+  unique_ptr(T* ptr, lkcpp::size_t size = 1) : m_ptr(ptr), m_size(size) {}
   /// Takes ownership of ptr's memory
   /// @param ptr Temporary unique_ptr
   unique_ptr(unique_ptr<T>&& ptr);
@@ -46,7 +54,7 @@ public:
   /// Frees any owned memory and takes ownership of the provided pointer
   /// @param ptr Pointer to take ownership of
   /// @param size Number of elements allocated
-  void reset(T* ptr, size_t size = 1);
+  void reset(T* ptr, lkcpp::size_t size = 1);
   /// Swaps memory with another unique_ptr
   /// @param other unique_ptr to swap memory with
   void swap(unique_ptr<T>& other);
@@ -58,7 +66,7 @@ public:
   /// @returns True if it owns memory
   operator bool() const { return m_ptr; }
   /// @returns The number of elements in the memory owned
-  size_t size() const { return m_size; }
+  lkcpp::size_t size() const { return m_size; }
 
   /// Dereference operator
   /// @returns Reference to owned memory
@@ -73,10 +81,10 @@ public:
 
   /// Indexes the owned memory like an array
   /// @returns Reference to the element at the provided index
-  T& operator[](size_t index) { return m_ptr[index]; }
+  T& operator[](lkcpp::size_t index) { return m_ptr[index]; }
   /// Indexes the owned memory like an array
   /// @returns Const reference to the element at the provided index
-  T const& operator[](size_t index) const { return m_ptr[index]; }
+  T const& operator[](lkcpp::size_t index) const { return m_ptr[index]; }
 
   /// @returns True if both unique_ptrs own the same memory (this will
   /// result in a double-free).
@@ -106,20 +114,22 @@ private:
   void free_memory();
 
   T* m_ptr = nullptr;
-  size_t m_size = 0;
+  lkcpp::size_t m_size = 0;
 };
 
 /// Allocates an object on the heap and returns a unique_ptr to the object
-template<class T, class... Args>
-unique_ptr<T> make_unique(Args&&... args)
+template<class T>
+template<class... Args>
+unique_ptr<T> unique_ptr<T>::make(Args&&... args)
 {
   T* ptr = lkcpp::alloc_obj<T>(args...);
   return unique_ptr<T>(ptr);
 }
 
 /// Allocates an array on the heap and returns a unique_ptr to the array
-template<class T, class... Args>
-unique_ptr<T> make_unique_array(size_t size, Args&&... args)
+template<class T>
+template<class... Args>
+unique_ptr<T> unique_ptr<T>::make_array(lkcpp::size_t size, Args&&... args)
 {
   T* ptr = lkcpp::alloc_objs<T>(size, args...);
   return unique_ptr<T>(ptr, size);
@@ -162,7 +172,7 @@ void unique_ptr<T>::reset()
 }
 
 template<class T>
-void unique_ptr<T>::reset(T* ptr, size_t size)
+void unique_ptr<T>::reset(T* ptr, lkcpp::size_t size)
 {
   free_memory();
   m_ptr = ptr;

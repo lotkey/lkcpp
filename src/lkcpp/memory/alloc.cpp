@@ -2,24 +2,25 @@
 
 namespace lkcpp {
 template<>
-void* alloc(size_t size)
+void* alloc(lkcpp::size_t size)
 {
-  size_t* p = static_cast<size_t*>(std::malloc(sizeof(size_t) + size));
+  lkcpp::size_t* p =
+    static_cast<lkcpp::size_t*>(std::malloc(sizeof(lkcpp::size_t) + size));
   if (p == nullptr) {
-    throw failed_allocation_exception(sizeof(size_t) + size);
+    throw failed_allocation_exception(sizeof(lkcpp::size_t) + size);
   }
   *p = size;
   return static_cast<void*>(p + 1);
 }
 
 template<>
-void* realloc(void* t, size_t size)
+void* realloc(void* t, lkcpp::size_t size)
 {
-  size_t* p = static_cast<size_t*>(t) - 1;
-  size_t* new_data =
-    static_cast<size_t*>(std::realloc(p, sizeof(size_t) + size));
+  lkcpp::size_t* p = static_cast<lkcpp::size_t*>(t) - 1;
+  lkcpp::size_t* new_data =
+    static_cast<lkcpp::size_t*>(std::realloc(p, sizeof(lkcpp::size_t) + size));
   if (new_data == nullptr) {
-    throw failed_allocation_exception(sizeof(size_t) + size);
+    throw failed_allocation_exception(sizeof(lkcpp::size_t) + size);
   }
   return static_cast<void*>(new_data + 1);
 }

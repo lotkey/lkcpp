@@ -9,11 +9,11 @@
 
 namespace lkcpp {
 template<class T>
-void memcpy(T* dest, T const* source, size_t count);
+void memcpy(T* dest, T const* source, lkcpp::size_t count);
 template<>
-void memcpy(void* dest, void const* source, size_t num_bytes);
+void memcpy(void* dest, void const* source, lkcpp::size_t num_bytes);
 template<>
-void memcpy(char* dest, char const* source, size_t num_bytes);
+void memcpy(char* dest, char const* source, lkcpp::size_t num_bytes);
 
 /// Copies memory from source to dest, even if they are overlapping
 /// Modeled after std::memcpy std::memmove
@@ -22,7 +22,7 @@ void memcpy(char* dest, char const* source, size_t num_bytes);
 /// regions overlap.
 /// @param count Number of elements to copy
 template<class T>
-inline void memcpy(T* dest, T const* source, size_t count)
+inline void memcpy(T* dest, T const* source, lkcpp::size_t count)
 {
   lkcpp::memcpy(static_cast<void*>(dest),
                 static_cast<void const*>(source),

@@ -24,11 +24,11 @@ public:
 
   /// Allocates an array of the provided size
   /// @param size Number of elements to allocate
-  dynamic_array(size_t size);
+  dynamic_array(lkcpp::size_t size);
   /// Copies some data into a dynamic array
   /// @param data Source of data to copy from
   /// @param size Number of elements to copy from data
-  dynamic_array(T const* data, size_t size);
+  dynamic_array(T const* data, lkcpp::size_t size);
   /// Performs a deep copy of a dynamic_array
   /// @param arr dynamic_array to deep copy
   dynamic_array(dynamic_array const& arr);
@@ -60,13 +60,13 @@ public:
   bool operator<=(dynamic_array const& other) const;
 
   /// @returns A reference to the element at the provided index
-  T& at(size_t index);
+  T& at(lkcpp::size_t index);
   /// @returns A const reference to the element at the provided index
-  T const& at(size_t index) const;
+  T const& at(lkcpp::size_t index) const;
   /// @returns A reference to the element at the provided index
-  T& operator[](size_t index) { return at(index); }
+  T& operator[](lkcpp::size_t index) { return at(index); }
   /// @returns A const reference to the element at the provided index
-  T const& operator[](size_t index) const { return at(index); }
+  T const& operator[](lkcpp::size_t index) const { return at(index); }
   /// @returns A reference to the first element in the array
   T& front() { return at(0); }
   /// @returns A const reference to the first element in the array
@@ -79,10 +79,10 @@ public:
   T const* data() const { return m_data.get(); }
 
   /// @returns The number of elements in the array
-  size_t size() const { return m_data.size(); }
+  lkcpp::size_t size() const { return m_data.size(); }
   /// Resizes the array to the provided size, deallocating any objects that get
   /// freed
-  void resize(size_t size);
+  void resize(lkcpp::size_t size);
 
   /// Fills the array with the provided value
   void fill(T const& value);
@@ -93,7 +93,7 @@ public:
   friend std::ostream& operator<<(std::ostream& os, dynamic_array<T> const& arr)
   {
     os << "{";
-    for (size_t i = 0; i < arr.size(); i++) {
+    for (lkcpp::size_t i = 0; i < arr.size(); i++) {
       os << arr[i];
       if (i != arr.size() - 1) { os << ", "; }
     }
@@ -105,20 +105,20 @@ private:
 };
 
 template<class T>
-dynamic_array<T>::dynamic_array(size_t size) :
-    m_data(make_unique_array<T>(size))
+dynamic_array<T>::dynamic_array(lkcpp::size_t size) :
+    m_data(unique_ptr<T>::make_array(size))
 {
   static_assert(std::is_default_constructible_v<T>);
 }
 
 template<class T>
-dynamic_array<T>::dynamic_array(T const* data, size_t size)
+dynamic_array<T>::dynamic_array(T const* data, lkcpp::size_t size)
 {
   static_assert(std::is_default_constructible_v<T>);
   static_assert(std::is_assignable_v<T>);
 
   T* data_copy = lkcpp::alloc_objs<T>(size);
-  for (size_t i = 0; i < size; i++) { data_copy[i] = data[i]; }
+  for (lkcpp::size_t i = 0; i < size; i++) { data_copy[i] = data[i]; }
   m_data.reset(data_copy, size);
 }
 
@@ -130,7 +130,7 @@ dynamic_array<T>::dynamic_array(dynamic_array<T> const& arr)
 
   if (!arr.m_data) { return; }
   T* data = lkcpp::alloc_objs<T>(arr.size());
-  for (size_t i = 0; i < arr.size(); i++) { data[i] = arr.m_data[i]; }
+  for (lkcpp::size_t i = 0; i < arr.size(); i++) { data[i] = arr.m_data[i]; }
   m_data.reset(data, arr.size());
 }
 
@@ -142,7 +142,7 @@ dynamic_array<T>& dynamic_array<T>::operator=(dynamic_array<T> const& arr)
 
   if (!arr.m_data) { return *this; }
   T* data = lkcpp::alloc_objs<T>(arr.size());
-  for (size_t i = 0; i < arr.size(); i++) { data[i] = arr.m_data[i]; }
+  for (lkcpp::size_t i = 0; i < arr.size(); i++) { data[i] = arr.m_data[i]; }
   m_data.reset(data, arr.size());
 }
 
@@ -163,8 +163,8 @@ bool dynamic_array<T>::operator!=(dynamic_array<T> const& other) const
 template<class T>
 bool dynamic_array<T>::operator>(dynamic_array<T> const& other) const
 {
-  size_t min = (other.size() > size()) ? size() : other.size();
-  for (size_t i = 0; i < min; i++) {
+  lkcpp::size_t min = (other.size() > size()) ? size() : other.size();
+  for (lkcpp::size_t i = 0; i < min; i++) {
     if (at(i) > other[i]) { return true; }
   }
   return size() > other.size();
@@ -173,8 +173,8 @@ bool dynamic_array<T>::operator>(dynamic_array<T> const& other) const
 template<class T>
 bool dynamic_array<T>::operator<(dynamic_array<T> const& other) const
 {
-  size_t min = (other.size() > size()) ? size() : other.size();
-  for (size_t i = 0; i < min; i++) {
+  lkcpp::size_t min = (other.size() > size()) ? size() : other.size();
+  for (lkcpp::size_t i = 0; i < min; i++) {
     if (at(i) < other[i]) { return true; }
   }
   return size() < other.size();
@@ -183,8 +183,8 @@ bool dynamic_array<T>::operator<(dynamic_array<T> const& other) const
 template<class T>
 bool dynamic_array<T>::operator>=(dynamic_array<T> const& other) const
 {
-  size_t min = (other.size() > size()) ? size() : other.size();
-  for (size_t i = 0; i < min; i++) {
+  lkcpp::size_t min = (other.size() > size()) ? size() : other.size();
+  for (lkcpp::size_t i = 0; i < min; i++) {
     if (at(i) < other[i]) { return false; }
   }
   return size() >= other.size();
@@ -193,15 +193,15 @@ bool dynamic_array<T>::operator>=(dynamic_array<T> const& other) const
 template<class T>
 bool dynamic_array<T>::operator<=(dynamic_array<T> const& other) const
 {
-  size_t min = (other.size() > size()) ? size() : other.size();
-  for (size_t i = 0; i < min; i++) {
+  lkcpp::size_t min = (other.size() > size()) ? size() : other.size();
+  for (lkcpp::size_t i = 0; i < min; i++) {
     if (at(i) > other[i]) { return false; }
   }
   return size() <= other.size();
 }
 
 template<class T>
-void dynamic_array<T>::resize(size_t size)
+void dynamic_array<T>::resize(lkcpp::size_t size)
 {
   T* data = m_data.release();
   data = lkcpp::realloc_objs(data, size);
@@ -209,14 +209,14 @@ void dynamic_array<T>::resize(size_t size)
 }
 
 template<class T>
-T& dynamic_array<T>::at(size_t index)
+T& dynamic_array<T>::at(lkcpp::size_t index)
 {
   if (index >= size()) { throw out_of_bounds_exception(index, 0, size() - 1); }
   return m_data[index];
 }
 
 template<class T>
-T const& dynamic_array<T>::at(size_t index) const
+T const& dynamic_array<T>::at(lkcpp::size_t index) const
 {
   if (index >= size()) { throw out_of_bounds_exception(index, 0, size() - 1); }
   return m_data[index];
@@ -225,7 +225,7 @@ T const& dynamic_array<T>::at(size_t index) const
 template<class T>
 void dynamic_array<T>::fill(T const& value)
 {
-  for (size_t i = 0; i < size(); i++) { m_data[i] = value; }
+  for (lkcpp::size_t i = 0; i < size(); i++) { m_data[i] = value; }
 }
 
 template<class T>
