@@ -5,7 +5,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "lkcpp/algorithm.hpp"
 #include "lkcpp/except.hpp"
 #include "lkcpp/memory.hpp"
 #include "lkcpp/utility.hpp"
@@ -101,12 +100,12 @@ public:
   }
 
 private:
-  unique_ptr<T> m_data;
+  lkcpp::unique_ptr<T> m_data;
 };
 
 template<class T>
 dynamic_array<T>::dynamic_array(lkcpp::size_t size) :
-    m_data(unique_ptr<T>::make_array(size))
+    m_data(lkcpp::unique_ptr<T>::make_array(size))
 {
   static_assert(std::is_default_constructible_v<T>);
 }
@@ -150,8 +149,7 @@ template<class T>
 bool dynamic_array<T>::operator==(dynamic_array<T> const& other) const
 {
   if (size() != other.size()) { return false; }
-  return lkcpp::equal(
-    m_data.get(), m_data.get() + m_data.size(), other.m_data.get());
+  return lkcpp::memcmp(m_data.get(), other.m_data.get(), m_data.size()) == 0;
 }
 
 template<class T>

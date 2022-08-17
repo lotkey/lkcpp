@@ -7,6 +7,7 @@ add_library(lkcpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/except/failed_allocation.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/except/out_of_bounds.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/memory/alloc.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/memory/memcmp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/memory/memcpy.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/memory/memfill.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/lkcpp/memory/memshift.cpp
@@ -14,11 +15,16 @@ add_library(lkcpp
 
 add_executable(test
     ${CMAKE_CURRENT_SOURCE_DIR}/test/test.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/test/test_array.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/test/test_dynamic_array.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/test/test_memory.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/test/test_unique_ptr.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/test/test_vector.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memcmp.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memcpy.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memfill.cpp
+
+    # ${CMAKE_CURRENT_SOURCE_DIR}/test/test_array.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/test/test_dynamic_array.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/test/test_memory.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/test/test_unique_ptr.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/test/test_vector.cpp
 )
 
 set_target_properties(lkcpp PROPERTIES
@@ -37,9 +43,21 @@ target_include_directories(test PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/
     ${GTEST_INCLUDE_DIRS}
 )
-
+    
 target_link_libraries(test PUBLIC
     lkcpp
     ${GTEST_LIBRARIES}
     pthread
 )
+    
+if(CMAKE_COMPILER_IS_GNUCXX)
+    LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules")
+    include(CodeCoverage)
+    append_coverage_compiler_flags()
+    setup_target_for_coverage_gcovr_html(
+        NAME lkcpp_coverage
+        EXECUTABLE test -j ${PROCESSOR_COUNT}
+        DEPENDENCIES lkcpp
+        BASE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/
+    )
+endif()

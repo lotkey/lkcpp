@@ -7,5 +7,5 @@
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "except/failed_allocation.hpp"
-#include "except/out_of_bounds.hpp"
+#include "lkcpp/except/failed_allocation.hpp"
+#include "lkcpp/except/out_of_bounds.hpp"

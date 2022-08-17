@@ -8,8 +8,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "memory/alloc.hpp"
-#include "memory/memcpy.hpp"
-#include "memory/memfill.hpp"
-#include "memory/memshift.hpp"
-#include "memory/unique_ptr.hpp"
+#include "lkcpp/memory/alloc.hpp"
+#include "lkcpp/memory/memcmp.hpp"
+#include "lkcpp/memory/memcpy.hpp"
+#include "lkcpp/memory/memfill.hpp"
+#include "lkcpp/memory/memshift.hpp"
+#include "lkcpp/memory/unique_ptr.hpp"
