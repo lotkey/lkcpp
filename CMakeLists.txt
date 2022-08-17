@@ -16,6 +16,7 @@ add_library(lkcpp
 add_executable(test
     ${CMAKE_CURRENT_SOURCE_DIR}/test/test.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_alloc.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memcmp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memcpy.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memfill.cpp
@@ -55,6 +56,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules")
     include(CodeCoverage)
     append_coverage_compiler_flags()
+    set(GCOVR_ADDITIONAL_ARGS "--exclude-throw-branches")
     setup_target_for_coverage_gcovr_html(
         NAME lkcpp_coverage
         EXECUTABLE test -j ${PROCESSOR_COUNT}
