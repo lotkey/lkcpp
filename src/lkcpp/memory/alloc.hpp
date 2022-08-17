@@ -36,13 +36,7 @@ void dealloc_objs(T* t);
 template<class T>
 T* alloc(lkcpp::size_t size)
 {
-  lkcpp::size_t* p = static_cast<lkcpp::size_t*>(
-    std::malloc(sizeof(lkcpp::size_t) + (sizeof(T) * size)));
-  if (p == nullptr) {
-    throw failed_allocation_exception((sizeof(T) * size) + size);
-  }
-  *p = size;
-  return static_cast<T*>(static_cast<void*>(p + 1));
+  return static_cast<T*>(lkcpp::alloc<void>(sizeof(T) * size));
 }
 
 template<>

@@ -19,6 +19,7 @@ add_executable(test
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memcmp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memcpy.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memfill.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memshift.cpp
 
     # ${CMAKE_CURRENT_SOURCE_DIR}/test/test_array.cpp
     # ${CMAKE_CURRENT_SOURCE_DIR}/test/test_dynamic_array.cpp

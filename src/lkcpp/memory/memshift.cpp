@@ -16,6 +16,7 @@ void memlshift(char* buffer,
                lkcpp::size_t buffer_size,
                lkcpp::size_t num_shifts)
 {
+  if (buffer_size == 0) { return; }
   num_shifts %= buffer_size;
   if (num_shifts == 0) { return; }
   char* tmp = lkcpp::alloc<char>(buffer_size);
@@ -38,6 +39,7 @@ void memrshift(char* buffer,
                lkcpp::size_t buffer_size,
                lkcpp::size_t num_shifts)
 {
+  if (buffer_size == 0) { return; }
   num_shifts %= buffer_size;
   if (num_shifts == 0) { return; }
   char* tmp = lkcpp::alloc<char>(buffer_size);
