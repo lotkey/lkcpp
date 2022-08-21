@@ -26,9 +26,14 @@ T* alloc_obj(Args&&... args);
 template<class T, class... Args>
 T* alloc_objs(lkcpp::size_t size, Args&&...);
 template<class T, class... Args>
-T* realloc_objs(T* t, lkcpp::size_t size, Args&&... args);
+T* realloc_objs(T* t,
+                lkcpp::size_t original_size,
+                lkcpp::size_t size,
+                Args&&... args);
 template<class T>
-void dealloc_objs(T* t);
+void dealloc_obj(T* t);
+template<class T>
+void dealloc_objs(T* t, lkcpp::size_t size);
 
 /// Allocates data from the heap
 /// @tparam T Type of elements to allocate
@@ -48,11 +53,8 @@ void* alloc(lkcpp::size_t size);
 template<class T>
 T* realloc(T* t, lkcpp::size_t size)
 {
-  t = static_cast<T*>(
-    lkcpp::realloc<void>(static_cast<void*>(t), size * sizeof(T)));
-  lkcpp::size_t* p = static_cast<lkcpp::size_t*>(static_cast<void*>(t)) - 1;
-  *p = size;
-  return t;
+  return static_cast<T*>(
+    lkcpp::realloc(static_cast<void*>(t), sizeof(T) * size));
 }
 
 template<>
@@ -64,8 +66,7 @@ template<class T>
 void dealloc(T* t)
 {
   if (t == nullptr) { return; }
-  lkcpp::size_t* p = static_cast<lkcpp::size_t*>(static_cast<void*>(t)) - 1;
-  free(p);
+  free(t);
 }
 
 /// Allocates and constructs an object on the heap
@@ -75,7 +76,7 @@ template<class T, class... Args>
 T* alloc_obj(Args&&... args)
 {
   T* t = lkcpp::alloc<T>();
-  construct(t, args...);
+  lkcpp::construct(t, args...);
   return t;
 }
 
@@ -89,8 +90,6 @@ T* alloc_objs(lkcpp::size_t size, Args&&... args)
 {
   T* t = lkcpp::alloc<T>(size);
   for (lkcpp::size_t i = 0; i < size; i++) { construct(t + i, args...); }
-  lkcpp::size_t* p = static_cast<lkcpp::size_t*>(static_cast<void*>(t)) - 1;
-  *p = size;
   return t;
 }
 
@@ -98,30 +97,42 @@ T* alloc_objs(lkcpp::size_t size, Args&&... args)
 /// @param t Pointer to objects to reallocate
 /// @param size Number of elements to reallocate t to
 template<class T, class... Args>
-T* realloc_objs(T* t, lkcpp::size_t size, Args&&... args)
+T* realloc_objs(T* t,
+                lkcpp::size_t original_size,
+                lkcpp::size_t size,
+                Args&&... args)
 {
-  if (t == nullptr) { return lkcpp::alloc_objs<T>(size, args...); }
-  lkcpp::size_t* p = static_cast<lkcpp::size_t*>(static_cast<void*>(t)) - 1;
-  std::size_t old_size = *p;
+  if (size == 0) {
+    lkcpp::dealloc_objs(t, original_size);
+    return nullptr;
+  }
 
-  if (old_size > size) {
-    for (lkcpp::size_t i = size; i < *p; i++) { destruct(t + i); }
+  for (lkcpp::size_t i = size; i < original_size; i++) {
+    lkcpp::destruct(t + i);
   }
 
   t = lkcpp::realloc(t, size);
-  for (std::size_t i = old_size; i < size; i++) { construct(t + i, args...); }
+  for (std::size_t i = original_size; i < size; i++) {
+    lkcpp::construct(t + i, args...);
+  }
   return t;
+}
+
+template<class T>
+void dealloc_obj(T* t)
+{
+  if (t == nullptr) { return; }
+  lkcpp::destruct(t);
+  lkcpp::dealloc(t);
 }
 
 /// Deallocates objects on the heap, destructing them in the process
 /// @param t Pointer to objects to deallocate
 template<class T>
-void dealloc_objs(T* t)
+void dealloc_objs(T* t, lkcpp::size_t size)
 {
   if (t == nullptr) { return; }
-  lkcpp::size_t num_elems =
-    *(static_cast<lkcpp::size_t*>(static_cast<void*>(t)) - 1);
-  for (lkcpp::size_t i = 0; i < num_elems; i++) { destruct(t + i); }
+  for (lkcpp::size_t i = 0; i < size; i++) { lkcpp::destruct(t + i); }
   lkcpp::dealloc(t);
 }
 } // namespace lkcpp

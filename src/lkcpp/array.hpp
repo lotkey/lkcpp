@@ -82,8 +82,6 @@ public:
 
   /// Fills the array with the provided value
   void fill(T&& value);
-  /// Swaps the values in two arrays
-  void swap(array<T, Size>& other);
 
   /// Outputs an array to a stream
   friend std::ostream& operator<<(std::ostream& os, array<T, Size> const& arr)
@@ -200,15 +198,5 @@ template<class T, lkcpp::size_t Size>
 void array<T, Size>::fill(T&& value)
 {
   for (lkcpp::size_t i = 0; i < Size; i++) { m_data[i] = value; }
-}
-
-template<class T, lkcpp::size_t Size>
-void array<T, Size>::swap(array<T, Size>& other)
-{
-  T* tmp = lkcpp::alloc<T>(Size);
-  lkcpp::memcpy(tmp, m_data, Size);
-  lkcpp::memcpy(m_data, other.m_data, Size);
-  lkcpp::memcpy(other.m_data, tmp, Size);
-  lkcpp::dealloc(tmp);
 }
 } // namespace lkcpp

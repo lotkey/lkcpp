@@ -85,8 +85,6 @@ public:
 
   /// Fills the array with the provided value
   void fill(T const& value);
-  /// Swaps two dynamic arrays
-  void swap(dynamic_array<T>& arr);
 
   /// Outputs an array to a stream
   friend std::ostream& operator<<(std::ostream& os, dynamic_array<T> const& arr)
@@ -202,7 +200,7 @@ template<class T>
 void dynamic_array<T>::resize(lkcpp::size_t size)
 {
   T* data = m_data.release();
-  data = lkcpp::realloc_objs(data, size);
+  data = lkcpp::realloc_objs(data, m_data.size(), size);
   m_data.reset(data, size);
 }
 
@@ -224,11 +222,5 @@ template<class T>
 void dynamic_array<T>::fill(T const& value)
 {
   for (lkcpp::size_t i = 0; i < size(); i++) { m_data[i] = value; }
-}
-
-template<class T>
-void dynamic_array<T>::swap(dynamic_array<T>& arr)
-{
-  lkcpp::swap(arr.m_data, m_data);
 }
 } // namespace lkcpp

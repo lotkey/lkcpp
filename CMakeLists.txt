@@ -16,17 +16,15 @@ add_library(lkcpp
 add_executable(test
     ${CMAKE_CURRENT_SOURCE_DIR}/test/test.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/test_object.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_alloc.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memcmp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memcpy.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memfill.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memshift.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_unique_ptr.cpp
 
-    # ${CMAKE_CURRENT_SOURCE_DIR}/test/test_array.cpp
-    # ${CMAKE_CURRENT_SOURCE_DIR}/test/test_dynamic_array.cpp
-    # ${CMAKE_CURRENT_SOURCE_DIR}/test/test_memory.cpp
-    # ${CMAKE_CURRENT_SOURCE_DIR}/test/test_unique_ptr.cpp
-    # ${CMAKE_CURRENT_SOURCE_DIR}/test/test_vector.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/util/instance_counter.cpp
 )
 
 set_target_properties(lkcpp PROPERTIES
@@ -43,6 +41,7 @@ target_include_directories(lkcpp PUBLIC
 
 target_include_directories(test PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/
     ${GTEST_INCLUDE_DIRS}
 )
     

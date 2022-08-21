@@ -18,7 +18,10 @@ public:
   shared_ptr(shared_ptr<T>&& other);
   shared_ptr& operator=(shared_ptr<T> const& other);
   shared_ptr& operator=(shared_ptr<T>&& other);
-  ~shared_ptr();
+  virtual ~shared_ptr();
+
+  void reset();
+  void reset(T* t, size_t size = 1);
 
 private:
   T* m_t = nullptr;
@@ -65,7 +68,7 @@ shared_ptr<T>::~shared_ptr()
   if (m_ref_count) {
     (*m_ref_count)--;
     if (*m_ref_count == 0) {
-      lkcpp::dealloc_objs(m_t);
+      lkcpp::dealloc_objs(m_t, m_size);
       m_t = nullptr;
       m_size = 0;
       lkcpp::dealloc(m_ref_count);

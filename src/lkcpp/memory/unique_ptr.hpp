@@ -7,6 +7,7 @@
 #pragma once
 
 #include "lkcpp/def.hpp"
+#include "lkcpp/memory/alloc.hpp"
 #include "lkcpp/utility.hpp"
 
 #include <iostream>
@@ -55,9 +56,6 @@ public:
   /// @param ptr Pointer to take ownership of
   /// @param size Number of elements allocated
   void reset(T* ptr, lkcpp::size_t size = 1);
-  /// Swaps memory with another unique_ptr
-  /// @param other unique_ptr to swap memory with
-  void swap(unique_ptr<T>& other);
 
   /// @returns Pointer to owned memory
   T* get() { return m_ptr; }
@@ -91,16 +89,6 @@ public:
   bool operator==(unique_ptr<T> const& other) const;
   /// @returns True if the unique_ptrs own different memory.
   bool operator!=(unique_ptr<T> const& other) const;
-  /// @returns True if the address is greater than the other pointer's address
-  bool operator>(unique_ptr<T> const& other) const;
-  /// @returns True if the address is less than the other pointer's address
-  bool operator<(unique_ptr<T> const& other) const;
-  /// @returns True if the address is greater than or equal the other pointer's
-  /// address
-  bool operator>=(unique_ptr<T> const& other) const;
-  /// @returns True if the address is less than or equal the other pointer's
-  /// address
-  bool operator<=(unique_ptr<T> const& other) const;
 
   /// Outputs a pointer to a stream
   friend std::ostream& operator<<(std::ostream& os,
@@ -137,17 +125,20 @@ unique_ptr<T> unique_ptr<T>::make_array(lkcpp::size_t size, Args&&... args)
 
 template<class T>
 unique_ptr<T>::unique_ptr(unique_ptr<T>&& ptr) :
-    m_ptr(ptr.release()), m_size(ptr.m_size)
+    m_ptr(ptr.m_ptr), m_size(ptr.m_size)
 {
-  ptr.m_size = 0;
+  ptr.release();
 }
 
 template<class T>
 unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr<T>&& ptr)
 {
-  m_ptr = ptr.release();
+  if (this == &ptr) { return *this; }
+  reset();
+  m_ptr = ptr.m_ptr;
   m_size = ptr.m_size;
-  ptr.m_size = 0;
+  ptr.release();
+  return *this;
 }
 
 template<class T>
@@ -180,13 +171,6 @@ void unique_ptr<T>::reset(T* ptr, lkcpp::size_t size)
 }
 
 template<class T>
-void unique_ptr<T>::swap(unique_ptr<T>& other)
-{
-  lkcpp::swap(m_ptr, other.m_ptr);
-  lkcpp::swap(m_size, other.m_size);
-}
-
-template<class T>
 bool unique_ptr<T>::operator==(unique_ptr<T> const& other) const
 {
   return get() == other.get();
@@ -199,34 +183,10 @@ bool unique_ptr<T>::operator!=(unique_ptr<T> const& other) const
 }
 
 template<class T>
-bool unique_ptr<T>::operator<(unique_ptr<T> const& other) const
-{
-  return get() < other.get();
-}
-
-template<class T>
-bool unique_ptr<T>::operator<=(unique_ptr<T> const& other) const
-{
-  return get() <= other.get();
-}
-
-template<class T>
-bool unique_ptr<T>::operator>(unique_ptr<T> const& other) const
-{
-  return get() > other.get();
-}
-
-template<class T>
-bool unique_ptr<T>::operator>=(unique_ptr<T> const& other) const
-{
-  return get() >= other.get();
-}
-
-template<class T>
 void unique_ptr<T>::free_memory()
 {
   if (!m_ptr) { return; }
-  lkcpp::dealloc_objs(m_ptr);
+  lkcpp::dealloc_objs(m_ptr, m_size);
   m_ptr = nullptr;
   m_size = 0;
 }

@@ -5,26 +5,32 @@
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "lkcpp/memory/alloc.hpp"
+#include "lkcpp/memory/memcpy.hpp"
+
 #include <type_traits>
 
 namespace lkcpp {
-/// Swaps primitives
-/// Modeled after std::swap
 template<class T>
-std::enable_if_t<std::is_fundamental_v<T> || std::is_pointer_v<T>> swap(T& t1,
-                                                                        T& t2)
-{
-  T tmp = t1;
-  t1 = t2;
-  t2 = tmp;
-}
+class custom_swap {
+public:
+  virtual void swap(T& t) = 0;
+};
 
-/// Swaps objects
-/// Modeled after std::swap
 template<class T>
-std::enable_if_t<!std::is_fundamental_v<T> && !std::is_pointer_v<T>> swap(T& t1,
-                                                                          T& t2)
+std::enable_if_t<std::is_base_of_v<custom_swap<T>, T>> swap(T& t1, T& t2)
 {
   t1.swap(t2);
+}
+
+template<class T>
+std::enable_if_t<!std::is_base_of_v<custom_swap<T>, T>> swap(T& t1, T& t2)
+{
+  if (&t1 == &t2) { return; }
+  T* tmp = lkcpp::alloc<T>();
+  lkcpp::memcpy(tmp, &t1, 1);
+  lkcpp::memcpy(&t1, &t2, 1);
+  lkcpp::memcpy(&t2, tmp, 1);
+  lkcpp::dealloc(tmp);
 }
 } // namespace lkcpp

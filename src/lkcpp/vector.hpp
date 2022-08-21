@@ -60,7 +60,6 @@ public:
   template<class... Args>
   void push_back(Args&&... args);
   void pop_back();
-  void swap(vector<T>& v);
 
   bool operator==(vector<T> const& v) const;
   bool operator!=(vector<T> const& v) const;
@@ -238,13 +237,6 @@ void vector<T>::pop_back()
     m_size--;
     shrink_if_needed();
   }
-}
-
-template<class T>
-void vector<T>::swap(vector<T>& v)
-{
-  lkcpp::swap(m_data, v.m_data);
-  lkcpp::swap(m_size, v.m_size);
 }
 
 template<class T>

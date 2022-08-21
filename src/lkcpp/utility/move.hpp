@@ -5,12 +5,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "lkcpp/utility/remove_reference.hpp"
+
 namespace lkcpp {
 /// Used to indicate an rvalue
 /// Modeled after std::move
 template<class T>
-T&& move(T&& t)
+typename remove_reference<T>::type&& move(T&& t)
 {
-  return t;
+  return static_cast<remove_reference<T>::type&&>(t);
 }
 } // namespace lkcpp
