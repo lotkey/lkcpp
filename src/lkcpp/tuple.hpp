@@ -27,7 +27,16 @@ class tuple_base {};
 template<lkcpp::size_t Index, class T, class... Args>
 class tuple_base<Index, T, Args...> :
     public tuple_impl<Index, typename lkcpp::remove_reference<T>::type>,
-    public tuple_base<Index + 1, Args...> {};
+    public tuple_base<Index + 1, Args...> {
+  using base_impl =
+    tuple_impl<Index, typename lkcpp::remove_reference<T>::type>;
+  using base_base = tuple_base<Index + 1, Args...>;
+
+public:
+  tuple_base(T&& t, Args&&... args) :
+      base_impl(lkcpp::move(t)), base_base(lkcpp::move(args)...)
+  {}
+};
 
 template<lkcpp::size_t Index, class T, class... Args>
 struct extract_type_at {
@@ -54,8 +63,18 @@ struct arg_count<> {
 } // namespace
 
 template<class T, class... Args>
-class tuple : public tuple_base<0, T, Args...> {
+class tuple : private tuple_base<0, T, Args...> {
+  using base = tuple_base<0, T, Args...>;
+
 public:
+  static tuple<T, Args...> make(T&& t, Args&&... args)
+  {
+    return tuple<T, Args...>(t, args...);
+  }
+
+  tuple() = default;
+  tuple(T&& t, Args&&... args) : base(lkcpp::move(t), lkcpp::move(args)...) {}
+
   template<lkcpp::size_t Index>
   auto& get()
   {
@@ -75,6 +94,6 @@ public:
       .get();
   }
 
-  constexpr lkcpp::size_t size() const { return arg_count<T, Args...>(); }
+  constexpr lkcpp::size_t size() const { return arg_count<T, Args...>::count; }
 };
 } // namespace lkcpp
