@@ -9,5 +9,6 @@
 #pragma once
 
 #include "lkcpp/utility/move.hpp"
+#include "lkcpp/utility/pair.hpp"
 #include "lkcpp/utility/remove_reference.hpp"
 #include "lkcpp/utility/swap.hpp"

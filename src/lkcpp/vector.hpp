@@ -51,6 +51,8 @@ public:
 
   bool empty() const { return m_size == 0; }
   lkcpp::size_t size() const { return m_size; }
+  lkcpp::size_t capacity() const { return m_capacity; }
+  void reserve(lkcpp::size_t size);
 
   void clear();
   template<class... Args>
@@ -176,6 +178,12 @@ T const& vector<T>::at(lkcpp::size_t index) const
     throw lkcpp::out_of_bounds_exception(index, 0, m_size - 1);
   }
   return m_data[index];
+}
+
+template <class T>
+void vector<T>::reserve(lkcpp::size_t size) {
+  m_data = lkcpp::realloc(m_data, m_capacity + size);
+  m_capacity += size;
 }
 
 template<class T>
