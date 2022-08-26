@@ -4,7 +4,7 @@
 
 namespace lkcpp {
 template<class T>
-int memcmp(T const* p1, T const* p2, lkcpp::size_t size)
+inline int memcmp(T const* p1, T const* p2, lkcpp::size_t size)
 {
   return lkcpp::memcmp(static_cast<void const*>(p1),
                        static_cast<void const*>(p2),

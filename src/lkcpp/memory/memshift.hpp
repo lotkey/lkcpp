@@ -4,7 +4,9 @@
 
 namespace lkcpp {
 template<class T>
-void memlshift(T* buffer, lkcpp::size_t buffer_size, lkcpp::size_t num_shifts)
+inline void memlshift(T* buffer,
+                      lkcpp::size_t buffer_size,
+                      lkcpp::size_t num_shifts)
 {
   memlshift<void>(static_cast<void*>(buffer),
                   buffer_size * sizeof(T),
@@ -12,7 +14,9 @@ void memlshift(T* buffer, lkcpp::size_t buffer_size, lkcpp::size_t num_shifts)
 }
 
 template<class T>
-void memrshift(T* buffer, lkcpp::size_t buffer_size, lkcpp::size_t num_shifts)
+inline void memrshift(T* buffer,
+                      lkcpp::size_t buffer_size,
+                      lkcpp::size_t num_shifts)
 {
   memrshift<void>(static_cast<void*>(buffer),
                   buffer_size * sizeof(T),

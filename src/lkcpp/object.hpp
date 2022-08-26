@@ -33,4 +33,10 @@ std::enable_if_t<!std::is_fundamental_v<T>> destruct(T* t)
 {
   t->~T();
 }
+
+template<class T1, class T2>
+bool is(T1 const& t1, T2 const& t2)
+{
+  return static_cast<void const*>(&t1) == static_cast<void const*>(&t2);
+}
 } // namespace lkcpp

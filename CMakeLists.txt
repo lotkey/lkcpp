@@ -17,6 +17,7 @@ add_executable(test
     ${CMAKE_CURRENT_SOURCE_DIR}/test/test.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/test/test_object.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/test_tuple.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_alloc.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memcmp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memcpy.cpp

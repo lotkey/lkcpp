@@ -61,13 +61,6 @@ public:
   void push_back(Args&&... args);
   void pop_back();
 
-  bool operator==(vector<T> const& v) const;
-  bool operator!=(vector<T> const& v) const;
-  bool operator>(vector<T> const& v) const;
-  bool operator<(vector<T> const& v) const;
-  bool operator>=(vector<T> const& v) const;
-  bool operator<=(vector<T> const& v) const;
-
   friend std::ostream& operator<<(std::ostream& os, vector<T> const& v)
   {
     os << "{";

@@ -84,12 +84,6 @@ public:
   /// @returns Const reference to the element at the provided index
   T const& operator[](lkcpp::size_t index) const { return m_ptr[index]; }
 
-  /// @returns True if both unique_ptrs own the same memory (this will
-  /// result in a double-free).
-  bool operator==(unique_ptr<T> const& other) const;
-  /// @returns True if the unique_ptrs own different memory.
-  bool operator!=(unique_ptr<T> const& other) const;
-
   /// Outputs a pointer to a stream
   friend std::ostream& operator<<(std::ostream& os,
                                   lkcpp::unique_ptr<T> const& x)
@@ -157,7 +151,7 @@ T* unique_ptr<T>::release()
 }
 
 template<class T>
-void unique_ptr<T>::reset()
+inline void unique_ptr<T>::reset()
 {
   free_memory();
 }
@@ -171,18 +165,6 @@ void unique_ptr<T>::reset(T* ptr, lkcpp::size_t size)
 }
 
 template<class T>
-bool unique_ptr<T>::operator==(unique_ptr<T> const& other) const
-{
-  return get() == other.get();
-}
-
-template<class T>
-bool unique_ptr<T>::operator!=(unique_ptr<T> const& other) const
-{
-  return get() != other.get();
-}
-
-template<class T>
 void unique_ptr<T>::free_memory()
 {
   if (!m_ptr) { return; }
@@ -191,3 +173,17 @@ void unique_ptr<T>::free_memory()
   m_size = 0;
 }
 } // namespace lkcpp
+
+template<class T>
+inline bool operator==(lkcpp::unique_ptr<T> const& lhs,
+                       lkcpp::unique_ptr<T> const& rhs)
+{
+  return lhs.get() == rhs.get();
+}
+
+template<class T>
+inline bool operator!=(lkcpp::unique_ptr<T> const& lhs,
+                       lkcpp::unique_ptr<T> const& rhs)
+{
+  return !(lhs == rhs);
+}

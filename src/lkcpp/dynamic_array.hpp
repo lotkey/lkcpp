@@ -7,6 +7,7 @@
 
 #include "lkcpp/except.hpp"
 #include "lkcpp/memory.hpp"
+#include "lkcpp/object.hpp"
 #include "lkcpp/utility.hpp"
 
 #include <type_traits>
@@ -34,29 +35,6 @@ public:
   /// Frees memory and performs a deep copy of a dynamic_array
   /// @param arr dynamic_array to deep copy
   dynamic_array& operator=(dynamic_array const& arr);
-
-  /// @returns True if the arrays contain equal elements and are the same size
-  bool operator==(dynamic_array const& other) const;
-  /// @returns False if the arrays contain equal elements and are the same size
-  bool operator!=(dynamic_array const& other) const;
-  /// @returns True if the first different element is greater than the
-  /// corresponding element in the other array OR true if all corresponding
-  /// elements are equal and the size is greater than the other array's size
-  bool operator>(dynamic_array const& other) const;
-  /// @returns True if the first different element is less than the
-  /// corresponding element in the other array OR true if all corresponding
-  /// elements are equal and the size is less than the other array's size
-  bool operator<(dynamic_array const& other) const;
-  /// @returns False if the first different element is less than the
-  /// corresponding element in the other array OR true if all corresponding
-  /// elements are equal and the size is greater than or equal to the other
-  /// array's size
-  bool operator>=(dynamic_array const& other) const;
-  /// @returns False if the first different element is greater than the
-  /// corresponding element in the other array OR true if all corresponding
-  /// elements are equal and the size is less than or equal to the other array's
-  /// size
-  bool operator<=(dynamic_array const& other) const;
 
   /// @returns A reference to the element at the provided index
   T& at(lkcpp::size_t index);
@@ -144,59 +122,6 @@ dynamic_array<T>& dynamic_array<T>::operator=(dynamic_array<T> const& arr)
 }
 
 template<class T>
-bool dynamic_array<T>::operator==(dynamic_array<T> const& other) const
-{
-  if (size() != other.size()) { return false; }
-  return lkcpp::memcmp(m_data.get(), other.m_data.get(), m_data.size()) == 0;
-}
-
-template<class T>
-bool dynamic_array<T>::operator!=(dynamic_array<T> const& other) const
-{
-  return !(*this == other);
-}
-
-template<class T>
-bool dynamic_array<T>::operator>(dynamic_array<T> const& other) const
-{
-  lkcpp::size_t min = (other.size() > size()) ? size() : other.size();
-  for (lkcpp::size_t i = 0; i < min; i++) {
-    if (at(i) > other[i]) { return true; }
-  }
-  return size() > other.size();
-}
-
-template<class T>
-bool dynamic_array<T>::operator<(dynamic_array<T> const& other) const
-{
-  lkcpp::size_t min = (other.size() > size()) ? size() : other.size();
-  for (lkcpp::size_t i = 0; i < min; i++) {
-    if (at(i) < other[i]) { return true; }
-  }
-  return size() < other.size();
-}
-
-template<class T>
-bool dynamic_array<T>::operator>=(dynamic_array<T> const& other) const
-{
-  lkcpp::size_t min = (other.size() > size()) ? size() : other.size();
-  for (lkcpp::size_t i = 0; i < min; i++) {
-    if (at(i) < other[i]) { return false; }
-  }
-  return size() >= other.size();
-}
-
-template<class T>
-bool dynamic_array<T>::operator<=(dynamic_array<T> const& other) const
-{
-  lkcpp::size_t min = (other.size() > size()) ? size() : other.size();
-  for (lkcpp::size_t i = 0; i < min; i++) {
-    if (at(i) > other[i]) { return false; }
-  }
-  return size() <= other.size();
-}
-
-template<class T>
 void dynamic_array<T>::resize(lkcpp::size_t size)
 {
   T* data = m_data.release();
@@ -224,3 +149,57 @@ void dynamic_array<T>::fill(T const& value)
   for (lkcpp::size_t i = 0; i < size(); i++) { m_data[i] = value; }
 }
 } // namespace lkcpp
+
+template<class T>
+bool operator==(lkcpp::dynamic_array<T> const& lhs,
+                lkcpp::dynamic_array<T> const& rhs) const
+{
+  if (lkcpp::is(lhs, rhs)) { return true; }
+  if (lhs.size() != rhs.size()) { return false; }
+  return lkcpp::memcmp(lhs.data(), rhs.data(), lhs.size()) == 0;
+}
+
+template<class T>
+inline bool operator!=(lkcpp::dynamic_array<T> const& lhs,
+                       lkcpp::dynamic_array<T> const& rhs) const
+{
+  return !(lhs == rhs);
+}
+
+template<class T>
+bool operator>(lkcpp::dynamic_array<T> const& lhs,
+               lkcpp::dynamic_array<T> const& rhs) const
+{
+  if (lkcpp::is(lhs, rhs)) { return false; }
+  lkcpp::size_t min = (lhs.size() > rhs.size()) ? rhs.size() : lhs.size();
+  for (lkcpp::size_t i = 0; i < min; i++) {
+    if (lhs[i] > rhs[i]) { return true; }
+  }
+  return lhs.size() > rhs.size();
+}
+
+template<class T>
+bool operator<(lkcpp::dynamic_array<T> const& lhs,
+               lkcpp::dynamic_array<T> const& rhs) const
+{
+  if (lkcpp::is(lhs, rhs)) { return false; }
+  lkcpp::size_t min = (lhs.size() > rhs.size()) ? rhs.size() : lhs.size();
+  for (lkcpp::size_t i = 0; i < min; i++) {
+    if (lhs[i] < rhs[i]) { return true; }
+  }
+  return lhs.size() < rhs.size();
+}
+
+template<class T>
+inline bool operator>=(lkcpp::dynamic_array<T> const& lhs,
+                       lkcpp::dynamic_array<T> const& rhs) const
+{
+  return !(lhs < rhs);
+}
+
+template<class T>
+inline bool operator<=(lkcpp::dynamic_array<T> const& lhs,
+                       lkcpp::dynamic_array<T> const& rhs) const
+{
+  return !(lhs > rhs);
+}

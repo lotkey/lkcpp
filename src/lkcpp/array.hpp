@@ -8,6 +8,7 @@
 #include "lkcpp/def.hpp"
 #include "lkcpp/except.hpp"
 #include "lkcpp/memory.hpp"
+#include "lkcpp/object.hpp"
 
 #include <iostream>
 
@@ -28,35 +29,6 @@ public:
   /// @param arr Array to copy elements from
   template<class Other_T, lkcpp::size_t Other_size>
   array(array<Other_T, Other_size> const& arr);
-
-  /// @returns True if the arrays contain equal elements and are the same size
-  template<class Other_T, lkcpp::size_t Other_size>
-  bool operator==(array<Other_T, Other_size> const& other) const;
-  /// @returns False if the arrays contain equal elements and are the same size
-  template<class Other_T, lkcpp::size_t Other_size>
-  bool operator!=(array<Other_T, Other_size> const& other) const;
-  /// @returns True if the first different element is greater than the
-  /// corresponding element in the other array OR true if all corresponding
-  /// elements are equal and the size is greater than the other array's size
-  template<class Other_T, lkcpp::size_t Other_size>
-  bool operator>(array<Other_T, Other_size> const& other) const;
-  /// @returns True if the first different element is less than the
-  /// corresponding element in the other array OR true if all corresponding
-  /// elements are equal and the size is less than the other array's size
-  template<class Other_T, lkcpp::size_t Other_size>
-  bool operator<(array<Other_T, Other_size> const& other) const;
-  /// @returns False if the first different element is less than the
-  /// corresponding element in the other array OR true if all corresponding
-  /// elements are equal and the size is greater than or equal to the other
-  /// array's size
-  template<class Other_T, lkcpp::size_t Other_size>
-  bool operator>=(array<Other_T, Other_size> const& other) const;
-  /// @returns False if the first different element is greater than the
-  /// corresponding element in the other array OR true if all corresponding
-  /// elements are equal and the size is less than or equal to the other array's
-  /// size
-  template<class Other_T, lkcpp::size_t Other_size>
-  bool operator<=(array<Other_T, Other_size> const& other) const;
 
   /// @returns A reference to the element at the provided index
   T& at(lkcpp::size_t index);
@@ -119,68 +91,6 @@ array<T, Size>::array(array<Other_T, Other_size> const& arr)
 }
 
 template<class T, lkcpp::size_t Size>
-template<class Other_T, lkcpp::size_t Other_size>
-bool array<T, Size>::operator==(array<Other_T, Other_size> const& other) const
-{
-  if (Size != Other_size) { return false; }
-  for (lkcpp::size_t i = 0; i < Size; i++) {
-    if (m_data[i] != other[i]) { return false; }
-  }
-  return true;
-}
-
-template<class T, lkcpp::size_t Size>
-template<class Other_T, lkcpp::size_t Other_size>
-bool array<T, Size>::operator!=(array<Other_T, Other_size> const& other) const
-{
-  return !(*this == other);
-}
-
-template<class T, lkcpp::size_t Size>
-template<class Other_T, lkcpp::size_t Other_size>
-bool array<T, Size>::operator>(array<Other_T, Other_size> const& other) const
-{
-  lkcpp::size_t min = (Other_size > Size) ? Size : Other_size;
-  for (lkcpp::size_t i = 0; i < min; i++) {
-    if (m_data[i] > other[i]) { return true; }
-  }
-  return Size > Other_size;
-}
-
-template<class T, lkcpp::size_t Size>
-template<class Other_T, lkcpp::size_t Other_size>
-bool array<T, Size>::operator<(array<Other_T, Other_size> const& other) const
-{
-  lkcpp::size_t min = (Other_size > Size) ? Size : Other_size;
-  for (lkcpp::size_t i = 0; i < min; i++) {
-    if (m_data[i] < other[i]) { return true; }
-  }
-  return Size < Other_size;
-}
-
-template<class T, lkcpp::size_t Size>
-template<class Other_T, lkcpp::size_t Other_size>
-bool array<T, Size>::operator>=(array<Other_T, Other_size> const& other) const
-{
-  lkcpp::size_t min = (Other_size > Size) ? Size : Other_size;
-  for (lkcpp::size_t i = 0; i < min; i++) {
-    if (m_data[i] < other[i]) { return false; }
-  }
-  return Size >= Other_size;
-}
-
-template<class T, lkcpp::size_t Size>
-template<class Other_T, lkcpp::size_t Other_size>
-bool array<T, Size>::operator<=(array<Other_T, Other_size> const& other) const
-{
-  lkcpp::size_t min = (Other_size > Size) ? Size : Other_size;
-  for (lkcpp::size_t i = 0; i < min; i++) {
-    if (m_data[i] > other[i]) { return false; }
-  }
-  return Size <= Other_size;
-}
-
-template<class T, lkcpp::size_t Size>
 T& array<T, Size>::at(lkcpp::size_t index)
 {
   if (index >= Size) { throw out_of_bounds_exception(index, 0, Size - 1); }
@@ -200,3 +110,60 @@ void array<T, Size>::fill(T&& value)
   for (lkcpp::size_t i = 0; i < Size; i++) { m_data[i] = value; }
 }
 } // namespace lkcpp
+
+template<class T_l, lkcpp::size_t Size_l, class T_r, lkcpp::size_t Size_r>
+bool operator==(lkcpp::array<T_l, Size_l> const& lhs,
+                lkcpp::array<T_r, Size_r> const& rhs) const
+{
+  if (lkcpp::is(lhs, rhs)) { return true; }
+  if (Size != Other_size) { return false; }
+  for (lkcpp::size_t i = 0; i < Size; i++) {
+    if (lhs[i] != rhs[i]) { return false; }
+  }
+  return true;
+}
+
+template<class T_l, lkcpp::size_t Size_l, class T_r, lkcpp::size_t Size_r>
+inline bool operator!=(lkcpp::array<T_l, Size_l> const& lhs,
+                       lkcpp::array<T_r, Size_r> const& rhs) const
+{
+  return !(lhs == rhs);
+}
+
+template<class T_l, lkcpp::size_t Size_l, class T_r, lkcpp::size_t Size_r>
+bool operator>(lkcpp::array<T_l, Size_l> const& lhs,
+               lkcpp::array<T_r, Size_r> const& rhs) const
+{
+  if (lkcpp::is(lhs, rhs)) { return false; }
+  lkcpp::size_t min = (Size_l > Size_r) ? Size_r : Size_l;
+  for (lkcpp::size_t i = 0; i < min; i++) {
+    if (lhs[i] > rhs[i]) { return true; }
+  }
+  return Size_l > Size_r;
+}
+
+template<class T_l, lkcpp::size_t Size_l, class T_r, lkcpp::size_t Size_r>
+bool operator<(lkcpp::array<T_l, Size_l> const& lhs,
+               lkcpp::array<T_r, Size_r> const& rhs) const
+{
+  if (lkcpp::is(lhs, rhs)) { return false; }
+  lkcpp::size_t min = (Size_r > Size_l) ? Size_l : Size_r;
+  for (lkcpp::size_t i = 0; i < min; i++) {
+    if (lhs[i] < rhs[i]) { return true; }
+  }
+  return Size_l < Size_r;
+}
+
+template<class T_l, lkcpp::size_t Size_l, class T_r, lkcpp::size_t Size_r>
+inline bool operator>=(lkcpp::array<T_l, Size_l> const& lhs,
+                       lkcpp::array<T_r, Size_r> const& rhs) const
+{
+  return !(lhs < rhs);
+}
+
+template<class T_l, lkcpp::size_t Size_l, class T_r, lkcpp::size_t Size_r>
+inline bool operator<=(lkcpp::array<T_l, Size_l> const& lhs,
+                       lkcpp::array<T_r, Size_r> const& rhs) const
+{
+  return !(lhs > rhs);
+}
