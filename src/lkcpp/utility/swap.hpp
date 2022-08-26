@@ -7,6 +7,7 @@
 
 #include "lkcpp/memory/alloc.hpp"
 #include "lkcpp/memory/memcpy.hpp"
+#include "lkcpp/object.hpp"
 
 #include <type_traits>
 
@@ -26,7 +27,7 @@ std::enable_if_t<std::is_base_of_v<custom_swap<T>, T>> swap(T& t1, T& t2)
 template<class T>
 std::enable_if_t<!std::is_base_of_v<custom_swap<T>, T>> swap(T& t1, T& t2)
 {
-  if (&t1 == &t2) { return; }
+  if (lkcpp::is(t1, t2)) { return; }
   T* tmp = lkcpp::alloc<T>();
   lkcpp::memcpy(tmp, &t1, 1);
   lkcpp::memcpy(&t1, &t2, 1);
