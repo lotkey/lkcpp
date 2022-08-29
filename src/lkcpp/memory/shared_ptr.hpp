@@ -4,21 +4,24 @@
 #include "lkcpp/memory/alloc.hpp"
 
 namespace lkcpp {
+template <class T>
+class weak_ptr;
+
 template<class T>
 class shared_ptr {
 public:
   template<class... Args>
   static shared_ptr<T> make(Args&&... args);
   template<class... Args>
-  static shared_ptr<T>::make_array(lkcpp::size_t size, Args&&... args);
+  static shared_ptr<T> make_array(lkcpp::size_t size, Args&&... args);
 
   shared_ptr() = default;
 
   shared_ptr(T* t, lkcpp::size_t size = 1);
   shared_ptr(shared_ptr<T> const& other);
   shared_ptr(shared_ptr<T>&& other) = default;
-  shared_ptr& operator=(shared_ptr<T> const& other);
-  shared_ptr& operator=(shared_ptr<T>&& other);
+  shared_ptr<T>& operator=(shared_ptr<T> const& other);
+  shared_ptr<T>& operator=(shared_ptr<T>&& other);
   virtual ~shared_ptr();
 
   T const* get() const;
@@ -41,6 +44,8 @@ private:
   lkcpp::size_t m_size = 0;
 
   void remove_reference();
+
+  friend class weak_ptr<T>;
 };
 
 template<class T>
@@ -53,7 +58,7 @@ shared_ptr<T> shared_ptr<T>::make(Args&&... args)
 
 template<class T>
 template<class... Args>
-shared_ptr<T> shared_ptr<T>::make_array(std::size_t size, Args&&... args)
+shared_ptr<T> shared_ptr<T>::make_array(lkcpp::size_t size, Args&&... args)
 {
   T* t = lkcpp::alloc_objs<T>(size, args...);
   return shared_ptr<T>(t);
@@ -72,7 +77,7 @@ shared_ptr<T>::shared_ptr(shared_ptr<T> const& other) :
 }
 
 template<class T>
-shared_ptr& shared_ptr<T>::operator=(shared_ptr<T> const& other)
+shared_ptr<T>& shared_ptr<T>::operator=(shared_ptr<T> const& other)
 {
   remove_reference();
   m_ref_count = other.m_ref_count;
@@ -81,9 +86,11 @@ shared_ptr& shared_ptr<T>::operator=(shared_ptr<T> const& other)
 }
 
 template<class T>
-shared_ptr& shared_ptr<T>::operator=(shared_ptr<T>&& other) :
-    m_t(other.m_t), m_size(other.m_size), m_ref_count(other.m_ref_count)
+shared_ptr<T>& shared_ptr<T>::operator=(shared_ptr<T>&& other) 
 {
+  m_t = other.m_t;
+  m_size = other.m_size;
+  m_ref_count = other.m_ref_count;
   other.m_t = nullptr;
   other.m_size = 0;
   other.m_ref_count = nullptr;
