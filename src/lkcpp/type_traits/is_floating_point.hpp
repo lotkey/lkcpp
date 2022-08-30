@@ -17,4 +17,7 @@ struct is_floating_point<double> : public lkcpp::true_type {};
 
 template<>
 struct is_floating_point<long double> : public lkcpp::true_type {};
+
+template<class T>
+inline constexpr bool is_floating_point_v = is_floating_point<T>::value;
 } // namespace lkcpp

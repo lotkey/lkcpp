@@ -32,6 +32,12 @@ TEST(test_type_traits, is_array)
   EXPECT_EQ(true, lkcpp::is_array<int[][1]>::value);
   EXPECT_EQ(true, lkcpp::is_array<int[1][1]>::value);
   EXPECT_EQ(false, lkcpp::is_array<int>::value);
+  EXPECT_EQ(true, lkcpp::is_array_v<int[]>);
+  EXPECT_EQ(true, lkcpp::is_array_v<int const[]>);
+  EXPECT_EQ(true, lkcpp::is_array_v<int[1]>);
+  EXPECT_EQ(true, lkcpp::is_array_v<int[][1]>);
+  EXPECT_EQ(true, lkcpp::is_array_v<int[1][1]>);
+  EXPECT_EQ(false, lkcpp::is_array_v<int>);
 }
 
 TEST(test_type_traits, is_null_pointer)
@@ -118,8 +124,26 @@ TEST(test_type_traits, is_reference)
 
 TEST(test_type_traits, is_const)
 {
+  EXPECT_EQ(false, lkcpp::is_const_v<char>);
   EXPECT_EQ(false, lkcpp::is_const<char>::value);
   EXPECT_EQ(true, lkcpp::is_const<char const>::value);
   EXPECT_EQ(false, lkcpp::is_const<char const*>::value);
   EXPECT_EQ(true, lkcpp::is_const<char const* const>::value);
+}
+
+TEST(test_type_traits, pointer_depth)
+{
+  EXPECT_EQ(0, lkcpp::pointer_depth<char>::value);
+  EXPECT_EQ(1, lkcpp::pointer_depth<char*>::value);
+  EXPECT_EQ(2, lkcpp::pointer_depth<char**>::value);
+  EXPECT_EQ(0, lkcpp::pointer_depth_v<char>);
+  EXPECT_EQ(1, lkcpp::pointer_depth_v<char*>);
+  EXPECT_EQ(2, lkcpp::pointer_depth_v<char**>);
+}
+
+TEST(test_type_traits, array_depth)
+{
+  EXPECT_EQ(0, lkcpp::array_depth<char>::value);
+  EXPECT_EQ(1, lkcpp::array_depth<char const[]>::value);
+  EXPECT_EQ(2, lkcpp::array_depth<char[][1]>::value);
 }

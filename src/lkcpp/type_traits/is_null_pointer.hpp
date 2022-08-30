@@ -12,4 +12,7 @@ struct is_null_pointer<T const> : public is_null_pointer<T> {};
 
 template<>
 struct is_null_pointer<lkcpp::nullptr_t> : public lkcpp::true_type {};
+
+template<class T>
+inline constexpr bool is_null_pointer_v = is_null_pointer<T>::value;
 } // namespace lkcpp

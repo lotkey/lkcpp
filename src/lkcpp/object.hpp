@@ -8,6 +8,7 @@
 #pragma once
 
 #include "lkcpp/def.hpp"
+#include "lkcpp/type_traits/enable_if.hpp"
 
 #include <type_traits>
 
@@ -23,13 +24,13 @@ void construct(T* t, Args&&... args)
 
 /// "Destructs" a fundamental type, does nothing
 template<class T>
-std::enable_if_t<std::is_fundamental_v<T>> destruct(T*)
+lkcpp::enable_if_t<std::is_fundamental_v<T>> destruct(T*)
 {}
 
 /// Explicitly calls the destructor of an object
 /// @param t Pointer to object to destruct
 template<class T>
-std::enable_if_t<!std::is_fundamental_v<T>> destruct(T* t)
+lkcpp::enable_if_t<!std::is_fundamental_v<T>> destruct(T* t)
 {
   t->~T();
 }

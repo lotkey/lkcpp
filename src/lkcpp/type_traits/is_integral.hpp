@@ -44,4 +44,7 @@ struct is_integral<unsigned long long int> : public lkcpp::true_type {};
 
 template<>
 struct is_integral<wchar_t> : public lkcpp::true_type {};
+
+template<class T>
+inline constexpr bool is_integral_v = is_integral<T>::value;
 } // namespace lkcpp
