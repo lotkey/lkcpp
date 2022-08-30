@@ -18,8 +18,8 @@ public:
   virtual void swap(T& t) = 0;
 };
 
-template<class T>
-std::enable_if_t<std::is_base_of_v<custom_swap<T>, T>> swap(T& t1, T& t2)
+template<class T1, class T2>
+std::enable_if_t<std::is_base_of_v<custom_swap<T2>, T1>> swap(T1& t1, T2& t2)
 {
   t1.swap(t2);
 }

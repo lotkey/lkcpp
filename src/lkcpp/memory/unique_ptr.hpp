@@ -8,7 +8,8 @@
 
 #include "lkcpp/def.hpp"
 #include "lkcpp/memory/alloc.hpp"
-#include "lkcpp/utility.hpp"
+#include "lkcpp/utility/move.hpp"
+#include "lkcpp/utility/swap.hpp"
 
 #include <iostream>
 

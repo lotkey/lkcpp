@@ -18,12 +18,15 @@ add_executable(test
 
     ${CMAKE_CURRENT_SOURCE_DIR}/test/test_object.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/test_tuple.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/test_type_traits.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_alloc.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memcmp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memcpy.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memfill.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memshift.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_unique_ptr.cpp
+
+    # ${CMAKE_CURRENT_SOURCE_DIR}/test/utility/test_pair.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/test/util/instance_counter.cpp
 )

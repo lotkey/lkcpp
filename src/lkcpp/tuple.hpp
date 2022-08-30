@@ -106,49 +106,63 @@ public:
   tuple(T&& t, Args&&... args);
 
   template<lkcpp::size_t Index>
-  auto& get();
+  auto& get()
+  {
+    return static_cast<
+             tuple_impl<Index,
+                        typename extract_type_at<Index, T, Args...>::type>&>(
+             m_base)
+      .get();
+  }
   template<lkcpp::size_t Index>
-  auto const& get() const;
+  auto const& get() const
+  {
+    return static_cast<tuple_impl<
+      Index,
+      typename extract_type_at<Index, T, Args...>::type> const&>(m_base)
+      .get();
+  }
+
   constexpr lkcpp::size_t size() const;
 
   friend bool operator==(tuple<T, Args...> const& t1,
                          tuple<T, Args...> const& t2)
   {
-    return static_cast<base const&>(t1) == static_cast<base const&>(t2);
+    return t1.m_base == t2.m_base;
   }
 
   friend bool operator!=(tuple<T, Args...> const& t1,
                          tuple<T, Args...> const& t2)
   {
-    return !(t1 == t2);
+    return t1.m_base != t2.m_base;
   }
 
   friend bool operator>(tuple<T, Args...> const& t1,
                         tuple<T, Args...> const& t2)
   {
-    return static_cast<base const&>(t1) > static_cast<base const&>(t2);
+    return t1.m_base > t2.m_base;
   }
 
   friend bool operator<(tuple<T, Args...> const& t1,
                         tuple<T, Args...> const& t2)
   {
-    return static_cast<base const&>(t1) < static_cast<base const&>(t2);
+    return t1.m_base < t2.m_base;
   }
 
   friend bool operator>=(tuple<T, Args...> const& t1,
                          tuple<T, Args...> const& t2)
   {
-    return !(static_cast<base const&>(t1) < static_cast<base const&>(t2));
+    return t1.m_base >= t2.m_base;
   }
 
   friend bool operator<=(tuple<T, Args...> const& t1,
                          tuple<T, Args...> const& t2)
   {
-    return !(static_cast<base const&>(t1) > static_cast<base const&>(t2));
+    return t1.m_base <= t2.m_base;
   }
 
 private:
-  using base = tuple_base<0, T, Args...>;
+  tuple_base<0, T, Args...> m_base;
 };
 
 template<class T, class... Args>
@@ -165,29 +179,8 @@ inline tuple<T, Args...> tuple<T, Args...>::make(T&& t, Args&&... args)
 
 template<class T, class... Args>
 tuple<T, Args...>::tuple(T&& t, Args&&... args) :
-    base(lkcpp::move(t), lkcpp::move(args)...)
+    m_base(lkcpp::move(t), lkcpp::move(args)...)
 {}
-
-template<class T, class... Args>
-template<lkcpp::size_t Index>
-auto& tuple<T, Args...>::get()
-{
-  return static_cast<
-           tuple_impl<Index,
-                      typename extract_type_at<Index, T, Args...>::type>&>(
-           *this)
-    .get();
-}
-
-template<class T, class... Args>
-template<lkcpp::size_t Index>
-auto const& tuple<T, Args...>::get() const
-{
-  return static_cast<tuple_impl<
-    Index,
-    typename extract_type_at<Index, T, Args...>::type> const&>(*this)
-    .get();
-}
 
 template<class T, class... Args>
 constexpr lkcpp::size_t tuple<T, Args...>::size() const
