@@ -10,6 +10,9 @@ template<class T>
 struct is_integral<T const> : public is_integral<T> {};
 
 template<>
+struct is_integral<bool> : public lkcpp::true_type {};
+
+template<>
 struct is_integral<char> : public lkcpp::true_type {};
 
 template<>
