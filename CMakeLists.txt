@@ -26,7 +26,7 @@ add_executable(test
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_memshift.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/memory/test_unique_ptr.cpp
 
-    # ${CMAKE_CURRENT_SOURCE_DIR}/test/utility/test_pair.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/utility/test_pair.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/test/util/instance_counter.cpp
 )

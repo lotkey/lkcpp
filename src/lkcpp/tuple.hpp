@@ -35,7 +35,15 @@ private:
 };
 
 template<lkcpp::size_t Index, class... Args>
-class tuple_base {};
+class tuple_base {
+public:
+  bool operator==(tuple_base<Index, Args...> const&) const { return true; }
+  bool operator!=(tuple_base<Index, Args...> const&) const { return false; }
+  bool operator>(tuple_base<Index, Args...> const&) const { return false; }
+  bool operator<(tuple_base<Index, Args...> const&) const { return false; }
+  bool operator>=(tuple_base<Index, Args...> const&) const { return true; }
+  bool operator<=(tuple_base<Index, Args...> const&) const { return true; }
+};
 
 template<lkcpp::size_t Index, class T, class... Args>
 class tuple_base<Index, T, Args...> :
@@ -111,7 +119,7 @@ public:
     return static_cast<
              tuple_impl<Index,
                         typename extract_type_at<Index, T, Args...>::type>&>(
-             m_base)
+             *this)
       .get();
   }
   template<lkcpp::size_t Index>
@@ -119,7 +127,7 @@ public:
   {
     return static_cast<tuple_impl<
       Index,
-      typename extract_type_at<Index, T, Args...>::type> const&>(m_base)
+      typename extract_type_at<Index, T, Args...>::type> const&>(*this)
       .get();
   }
 
@@ -128,41 +136,41 @@ public:
   friend bool operator==(tuple<T, Args...> const& t1,
                          tuple<T, Args...> const& t2)
   {
-    return t1.m_base == t2.m_base;
+    return static_cast<base const&>(t1) == static_cast<base const&>(t2);
   }
 
   friend bool operator!=(tuple<T, Args...> const& t1,
                          tuple<T, Args...> const& t2)
   {
-    return t1.m_base != t2.m_base;
+    return static_cast<base const&>(t1) != static_cast<base const&>(t2);
   }
 
   friend bool operator>(tuple<T, Args...> const& t1,
                         tuple<T, Args...> const& t2)
   {
-    return t1.m_base > t2.m_base;
+    return static_cast<base const&>(t1) > static_cast<base const&>(t2);
   }
 
   friend bool operator<(tuple<T, Args...> const& t1,
                         tuple<T, Args...> const& t2)
   {
-    return t1.m_base < t2.m_base;
+    return static_cast<base const&>(t1) < static_cast<base const&>(t2);
   }
 
   friend bool operator>=(tuple<T, Args...> const& t1,
                          tuple<T, Args...> const& t2)
   {
-    return t1.m_base >= t2.m_base;
+    return static_cast<base const&>(t1) >= static_cast<base const&>(t2);
   }
 
   friend bool operator<=(tuple<T, Args...> const& t1,
                          tuple<T, Args...> const& t2)
   {
-    return t1.m_base <= t2.m_base;
+    return static_cast<base const&>(t1) <= static_cast<base const&>(t2);
   }
 
 private:
-  tuple_base<0, T, Args...> m_base;
+  using base = tuple_base<0, T, Args...>;
 };
 
 template<class T, class... Args>
@@ -179,7 +187,7 @@ inline tuple<T, Args...> tuple<T, Args...>::make(T&& t, Args&&... args)
 
 template<class T, class... Args>
 tuple<T, Args...>::tuple(T&& t, Args&&... args) :
-    m_base(lkcpp::move(t), lkcpp::move(args)...)
+    base(lkcpp::move(t), lkcpp::move(args)...)
 {}
 
 template<class T, class... Args>
