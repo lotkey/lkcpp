@@ -10,12 +10,33 @@ enum class EnumClass {};
 
 class Class {
 public:
+  Class() = default;
+  Class(int) {}
+  Class(Class const&) = default;
+  Class(Class&&) = default;
+  Class& operator=(Class const&) = default;
+  Class& operator=(Class&&) = default;
+
   void f1() {}
   void f2() const {}
   void f3() volatile {}
   void f4() const volatile {}
 
   int m1;
+};
+
+class NonTriviallyCopyable {
+public:
+  NonTriviallyCopyable(NonTriviallyCopyable const& x) {}
+};
+
+class NonConstructible {
+public:
+  NonConstructible() = delete;
+  NonConstructible(NonConstructible const&) = delete;
+  NonConstructible(NonConstructible&&) = delete;
+  NonConstructible& operator=(NonConstructible const&) = delete;
+  NonConstructible& operator=(NonConstructible&&) = delete;
 };
 
 union Union {};
@@ -245,4 +266,62 @@ TEST(test_type_traits, is_arithmetic)
   EXPECT_EQ(true, lkcpp::is_arithmetic_v<char const>);
   EXPECT_EQ(false, lkcpp::is_arithmetic_v<char&>);
   EXPECT_EQ(false, lkcpp::is_arithmetic_v<char*>);
+}
+
+TEST(test_type_traits, is_fundamental)
+{
+  EXPECT_EQ(false, lkcpp::is_fundamental_v<Class>);
+  EXPECT_EQ(true, lkcpp::is_fundamental_v<bool>);
+  EXPECT_EQ(true, lkcpp::is_fundamental_v<int>);
+  EXPECT_EQ(true, lkcpp::is_fundamental_v<int const>);
+  EXPECT_EQ(false, lkcpp::is_fundamental_v<int&>);
+  EXPECT_EQ(false, lkcpp::is_fundamental_v<int*>);
+  EXPECT_EQ(true, lkcpp::is_fundamental_v<float>);
+  EXPECT_EQ(true, lkcpp::is_fundamental_v<float const>);
+  EXPECT_EQ(false, lkcpp::is_fundamental_v<float&>);
+  EXPECT_EQ(false, lkcpp::is_fundamental_v<float*>);
+  EXPECT_EQ(true, lkcpp::is_fundamental_v<char>);
+  EXPECT_EQ(true, lkcpp::is_fundamental_v<char const>);
+  EXPECT_EQ(false, lkcpp::is_fundamental_v<char&>);
+  EXPECT_EQ(false, lkcpp::is_fundamental_v<char*>);
+}
+
+TEST(test_type_traits, is_scalar)
+{
+  EXPECT_EQ(true, lkcpp::is_scalar_v<int>);
+  EXPECT_EQ(true, lkcpp::is_scalar_v<double>);
+  EXPECT_EQ(false, lkcpp::is_scalar_v<Class>);
+}
+
+TEST(test_type_traits, is_object)
+{
+  EXPECT_EQ(true, lkcpp::is_object_v<int>);
+  EXPECT_EQ(false, lkcpp::is_object_v<int&>);
+  EXPECT_EQ(true, lkcpp::is_object_v<Class>);
+  EXPECT_EQ(false, lkcpp::is_object_v<Class&>);
+}
+
+TEST(test_type_traits, is_compound)
+{
+  EXPECT_EQ(true, lkcpp::is_compound_v<Class>);
+  EXPECT_EQ(false, lkcpp::is_compound_v<int>);
+}
+
+TEST(test_type_traits, is_volatile)
+{
+  EXPECT_EQ(true, lkcpp::is_volatile_v<int volatile>);
+  EXPECT_EQ(false, lkcpp::is_volatile_v<int>);
+}
+
+TEST(test_type_traits, is_trivially_copyable)
+{
+  EXPECT_EQ(true, lkcpp::is_trivially_copyable_v<int>);
+  EXPECT_EQ(true, lkcpp::is_trivially_copyable_v<Class>);
+  EXPECT_EQ(false, lkcpp::is_trivially_copyable_v<NonTriviallyCopyable>);
+}
+
+TEST(test_type_traits, is_constructible)
+{
+  EXPECT_EQ(true, lkcpp::is_constructible_v<Class>);
+  EXPECT_EQ(false, lkcpp::is_constructible_v<NonConstructible>);
 }
