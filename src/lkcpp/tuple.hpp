@@ -11,24 +11,26 @@
 #include "lkcpp/utility/remove_reference.hpp"
 
 namespace lkcpp {
+// Forward declarations
 namespace {
 template<lkcpp::size_t Index, class T>
 class tuple_impl;
-
 template<lkcpp::size_t Index, class... Args>
 class tuple_base;
-
 template<lkcpp::size_t Index, class T, class... Args>
 struct extract_type_at;
-
 template<class... Args>
 struct arg_count;
 } // namespace
 
+/// Class that contains a variable number of objects
+/// Modeled after std::tuple
 template<class T, class... Args>
 class tuple : private tuple_base<0, T, Args...> {
 public:
+  /// @returns A tuple with default objects
   static tuple<T, Args...> make();
+  /// @returns A tuple with objects constructed from other objects
   static tuple<T, Args...> make(T&& t, Args&&... args);
 
   tuple() = default;
@@ -38,8 +40,11 @@ public:
   tuple& operator=(tuple<T, Args...>&& other) = default;
   virtual ~tuple() = default;
 
+  /// Construct objects in tuple from other objects
   tuple(T&& t, Args&&... args);
 
+  /// @tparam Index Index of the element to return
+  /// @returns The element at the Index-th element
   template<lkcpp::size_t Index>
   auto& get()
   {
@@ -49,6 +54,9 @@ public:
              *this)
       .get();
   }
+
+  /// @tparam Index Index of the element to return
+  /// @returns The element at the Index-th element
   template<lkcpp::size_t Index>
   auto const& get() const
   {
@@ -58,6 +66,7 @@ public:
       .get();
   }
 
+  /// @returns The number of elements in the tuple
   constexpr lkcpp::size_t size() const;
 
   friend bool operator==(tuple<T, Args...> const& t1,
