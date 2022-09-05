@@ -82,7 +82,9 @@ shared_ptr<T>::shared_ptr(shared_ptr<T> const& other) :
 template<class T>
 shared_ptr<T>::shared_ptr(T* t, lkcpp::size_t size, lkcpp::size_t* ref_count) :
     m_t(t), m_size(size), m_ref_count(ref_count)
-{}
+{
+  if (m_ref_count) { (*m_ref_count)++; }
+}
 
 template<class T>
 shared_ptr<T>& shared_ptr<T>::operator=(shared_ptr<T> const& other)
@@ -177,7 +179,7 @@ lkcpp::size_t shared_ptr<T>::use_count() const
 template<class T>
 inline bool shared_ptr<T>::unique() const
 {
-  return use_count() == 0;
+  return use_count() == 1;
 }
 
 template<class T>

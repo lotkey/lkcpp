@@ -1,3 +1,8 @@
+////////////////////////////////////////////////////////////////////////////////
+/// Written by Lotkey
+/// https://www.github.com/lotkey
+/// https://www.synthchris.com/
+////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include "lkcpp/def.hpp"
@@ -8,94 +13,16 @@
 namespace lkcpp {
 namespace {
 template<lkcpp::size_t Index, class T>
-class tuple_impl {
-public:
-  tuple_impl() = default;
-  tuple_impl(tuple_impl<Index, T> const&) = default;
-  tuple_impl(tuple_impl<Index, T>&&) = default;
-  tuple_impl& operator=(tuple_impl<Index, T> const&) = default;
-  tuple_impl& operator=(tuple_impl<Index, T>&&) = default;
-  virtual ~tuple_impl() = default;
-
-  tuple_impl(T const& t);
-  tuple_impl(T&& t);
-
-  T& get();
-  T const& get() const;
-
-  bool operator==(tuple_impl<Index, T> const& other) const;
-  bool operator!=(tuple_impl<Index, T> const& other) const;
-  bool operator>(tuple_impl<Index, T> const& other) const;
-  bool operator<(tuple_impl<Index, T> const& other) const;
-  bool operator>=(tuple_impl<Index, T> const& other) const;
-  bool operator<=(tuple_impl<Index, T> const& other) const;
-
-private:
-  T m_t;
-};
+class tuple_impl;
 
 template<lkcpp::size_t Index, class... Args>
-class tuple_base {
-public:
-  bool operator==(tuple_base<Index, Args...> const&) const { return true; }
-  bool operator!=(tuple_base<Index, Args...> const&) const { return false; }
-  bool operator>(tuple_base<Index, Args...> const&) const { return false; }
-  bool operator<(tuple_base<Index, Args...> const&) const { return false; }
-  bool operator>=(tuple_base<Index, Args...> const&) const { return true; }
-  bool operator<=(tuple_base<Index, Args...> const&) const { return true; }
-};
+class tuple_base;
 
 template<lkcpp::size_t Index, class T, class... Args>
-class tuple_base<Index, T, Args...> :
-    public tuple_impl<Index, typename lkcpp::remove_reference<T>::type>,
-    public tuple_base<Index + 1, Args...> {
-public:
-  tuple_base() = default;
-  tuple_base(tuple_base<Index, T, Args...> const&) = default;
-  tuple_base(tuple_base<Index, T, Args...>&&) = default;
-  tuple_base<Index, T, Args...>& operator=(
-    tuple_base<Index, T, Args...> const&) = default;
-  tuple_base<Index, T, Args...>& operator=(tuple_base<Index, T, Args...>&&) =
-    default;
-  virtual ~tuple_base() = default;
-
-  tuple_base(T&& t, Args&&... args);
-
-  bool operator==(tuple_base<Index, T, Args...> const& other) const;
-  bool operator!=(tuple_base<Index, T, Args...> const& other) const;
-  bool operator>(tuple_base<Index, T, Args...> const& other) const;
-  bool operator<(tuple_base<Index, T, Args...> const& other) const;
-  bool operator>=(tuple_base<Index, T, Args...> const& other) const;
-  bool operator<=(tuple_base<Index, T, Args...> const& other) const;
-
-private:
-  using base_impl =
-    tuple_impl<Index, typename lkcpp::remove_reference<T>::type>;
-  using base_base = tuple_base<Index + 1, Args...>;
-};
-
-template<lkcpp::size_t Index, class T, class... Args>
-struct extract_type_at {
-  using type = typename extract_type_at<Index - 1, Args...>::type;
-};
-
-template<class T, class... Args>
-struct extract_type_at<0, T, Args...> {
-  using type = T;
-};
+struct extract_type_at;
 
 template<class... Args>
 struct arg_count;
-
-template<class T, class... Args>
-struct arg_count<T, Args...> {
-  static constexpr lkcpp::size_t count = 1 + arg_count<Args...>::count;
-};
-
-template<>
-struct arg_count<> {
-  static constexpr lkcpp::size_t count = 0;
-};
 } // namespace
 
 template<class T, class... Args>
@@ -197,6 +124,93 @@ constexpr lkcpp::size_t tuple<T, Args...>::size() const
 }
 
 namespace {
+template<lkcpp::size_t Index, class T>
+class tuple_impl {
+public:
+  tuple_impl() = default;
+  tuple_impl(tuple_impl<Index, T> const&) = default;
+  tuple_impl(tuple_impl<Index, T>&&) = default;
+  tuple_impl& operator=(tuple_impl<Index, T> const&) = default;
+  tuple_impl& operator=(tuple_impl<Index, T>&&) = default;
+  virtual ~tuple_impl() = default;
+
+  tuple_impl(T const& t);
+  tuple_impl(T&& t);
+
+  T& get();
+  T const& get() const;
+
+  bool operator==(tuple_impl<Index, T> const& other) const;
+  bool operator!=(tuple_impl<Index, T> const& other) const;
+  bool operator>(tuple_impl<Index, T> const& other) const;
+  bool operator<(tuple_impl<Index, T> const& other) const;
+  bool operator>=(tuple_impl<Index, T> const& other) const;
+  bool operator<=(tuple_impl<Index, T> const& other) const;
+
+private:
+  T m_t;
+};
+
+template<lkcpp::size_t Index, class... Args>
+class tuple_base {
+public:
+  bool operator==(tuple_base<Index, Args...> const&) const { return true; }
+  bool operator!=(tuple_base<Index, Args...> const&) const { return false; }
+  bool operator>(tuple_base<Index, Args...> const&) const { return false; }
+  bool operator<(tuple_base<Index, Args...> const&) const { return false; }
+  bool operator>=(tuple_base<Index, Args...> const&) const { return true; }
+  bool operator<=(tuple_base<Index, Args...> const&) const { return true; }
+};
+
+template<lkcpp::size_t Index, class T, class... Args>
+class tuple_base<Index, T, Args...> :
+    public tuple_impl<Index, typename lkcpp::remove_reference<T>::type>,
+    public tuple_base<Index + 1, Args...> {
+public:
+  tuple_base() = default;
+  tuple_base(tuple_base<Index, T, Args...> const&) = default;
+  tuple_base(tuple_base<Index, T, Args...>&&) = default;
+  tuple_base<Index, T, Args...>& operator=(
+    tuple_base<Index, T, Args...> const&) = default;
+  tuple_base<Index, T, Args...>& operator=(tuple_base<Index, T, Args...>&&) =
+    default;
+  virtual ~tuple_base() = default;
+
+  tuple_base(T&& t, Args&&... args);
+
+  bool operator==(tuple_base<Index, T, Args...> const& other) const;
+  bool operator!=(tuple_base<Index, T, Args...> const& other) const;
+  bool operator>(tuple_base<Index, T, Args...> const& other) const;
+  bool operator<(tuple_base<Index, T, Args...> const& other) const;
+  bool operator>=(tuple_base<Index, T, Args...> const& other) const;
+  bool operator<=(tuple_base<Index, T, Args...> const& other) const;
+
+private:
+  using base_impl =
+    tuple_impl<Index, typename lkcpp::remove_reference<T>::type>;
+  using base_base = tuple_base<Index + 1, Args...>;
+};
+
+template<lkcpp::size_t Index, class T, class... Args>
+struct extract_type_at {
+  using type = typename extract_type_at<Index - 1, Args...>::type;
+};
+
+template<class T, class... Args>
+struct extract_type_at<0, T, Args...> {
+  using type = T;
+};
+
+template<class T, class... Args>
+struct arg_count<T, Args...> {
+  static constexpr lkcpp::size_t count = 1 + arg_count<Args...>::count;
+};
+
+template<>
+struct arg_count<> {
+  static constexpr lkcpp::size_t count = 0;
+};
+
 template<lkcpp::size_t Index, class T>
 tuple_impl<Index, T>::tuple_impl(T const& t) : m_t(t)
 {}
